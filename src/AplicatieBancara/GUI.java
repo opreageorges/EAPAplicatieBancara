@@ -22,9 +22,22 @@ public class GUI {
     // Functia de inregistrare
     private static int register(Scanner input){
         //Cer datele pe rand de la utilizator
-        System.out.println("Introduceti emailul");
-        String email = input.next();
+        boolean mail_verfier = true;
+        String email = null;
+        while(mail_verfier) {
+            mail_verfier = false;
+            System.out.println("Introduceti emailul");
+            email = input.next();
 
+            if(email.equals("exit")){
+                return 0;
+            }
+            else if(con.verfica_email(email)){
+                mail_verfier = true;
+                System.out.println("Exista deja un cont cu acest email\nDaca doresti sa anulezi scrie: \"exit\"");
+            }
+
+        }
         System.out.println("Introduceti prenumele");
         String prenume = input.next();
 
@@ -117,6 +130,8 @@ public class GUI {
 
     //Functia de autentificare in cont
     private static int log_in(Scanner input){
+        User logged_user;
+        int incearca_logarea;
 
         System.out.println("Email");
         String username = input.next();
@@ -124,7 +139,16 @@ public class GUI {
         System.out.println("Parola");
         String pass = input.next();
 
-        con.log_in_account(username, pass);
+        logged_user = con.log_in_account(username, pass);
+
+        boolean is_logged_in = false;
+        if (logged_user != null) is_logged_in = true;
+
+        while (is_logged_in){
+            System.out.println("Ce doriti sa faceti?\n1.Afiseaza cardurile si conturile\n2.\n3.\n9.Exit");
+            is_logged_in = false;
+        }
+
 
         return 0;
     }
@@ -137,10 +161,9 @@ public class GUI {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-
-        while (true) {
+        boolean bucla_principala = true;
+        while (bucla_principala) {
             //Interfata text temporara pana fac GUI
-            boolean exit = false;
             System.out.println("Ce doriti sa faceti?\n 1:Inregistrare \n 2:Logare \n 3:Exit\n");
             Scanner input = new Scanner(System.in);
 
@@ -162,15 +185,12 @@ public class GUI {
                     break;
 
                 default:
-                    exit = true;
+                    bucla_principala = false;
                     break;
             }
             if (i == -1)
                 System.out.println("Datele introduse au avut o eroare");
 
-
-            if (exit)
-                break;
         }
 
     }

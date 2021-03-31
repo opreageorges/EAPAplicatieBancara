@@ -11,6 +11,7 @@ public class Cont {
     protected BigDecimal suma_disponibila;
     protected Card proprietar;
 
+    // Creaza un cont cu o depunere initiala
     public Cont(String nume, LocalDate data_deschiderii, String iban, String bic, BigDecimal suma_disponibila, Card proprietar) {
         this.nume = nume;
         this.data_deschiderii = data_deschiderii;
@@ -20,6 +21,7 @@ public class Cont {
         this.proprietar = proprietar;
     }
 
+    // Creaza un cont gol
     public Cont(String nume, LocalDate data_deschiderii, String iban, String bic, Card proprietar) {
         this.nume = nume;
         this.data_deschiderii = data_deschiderii;
