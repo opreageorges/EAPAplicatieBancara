@@ -11,28 +11,26 @@ import static java.lang.Math.pow;
 import static javax.xml.bind.DatatypeConverter.parseInt;
 
 public class GUI {
-    private final static String server_ip = "10.10.10.10";
     private static Connection con;
 
     //Functie pentru a salva doar numere importante
-    private static long prelucrare_cnp(long cnp){
+    private static long prelucrare_cnp(long cnp) {
         return ((cnp / (long) pow(10, 12)) * (long) pow(10, 6)) + (cnp % (long) (pow(10, 6)));
     }
 
     // Functia de inregistrare
-    private static int register(Scanner input){
+    private static int register(Scanner input) {
         //Cer datele pe rand de la utilizator
         boolean mail_verfier = true;
         String email = null;
-        while(mail_verfier) {
+        while (mail_verfier) {
             mail_verfier = false;
             System.out.println("Introduceti emailul");
             email = input.next();
 
-            if(email.equals("exit")){
+            if (email.equals("exit")) {
                 return 0;
-            }
-            else if(con.verfica_email(email)){
+            } else if (con.verfica_email(email)) {
                 mail_verfier = true;
                 System.out.println("Exista deja un cont cu acest email\nDaca doresti sa anulezi scrie: \"exit\"");
             }
@@ -50,7 +48,7 @@ public class GUI {
         long cnp = 0;
 
         boolean bool_date_numerice = true;
-        while(bool_date_numerice) {
+        while (bool_date_numerice) {
             try {
                 bool_date_numerice = false;
                 String temp;
@@ -68,12 +66,12 @@ public class GUI {
                 an = parseInt(temp);
 
                 // Verific ca data nasterii sa aiba o putin de sens
-                if(zi > 31 || zi < 0 || luna > 12 || luna < 0 || an < 0){
+                if (zi > 31 || zi < 0 || luna > 12 || luna < 0 || an < 0) {
                     System.out.println("Data nasterii este inexistenta");
                     bool_date_numerice = true;
                 }
 
-                if(LocalDate.now().getYear() - an < 18 ){
+                if (LocalDate.now().getYear() - an < 18) {
                     System.out.println("Aceasta banca nu accepta clienti minori");
                     return -1;
                 }
@@ -83,7 +81,7 @@ public class GUI {
                 cnp = parseLong(temp);
 
                 //Verific daca cnp-ul are numarul minim de cifre
-                if( cnp < (long)pow(10,12) ) {
+                if (cnp < (long) pow(10, 12)) {
                     bool_date_numerice = true;
                     System.out.println("CNP incorect");
                 }
@@ -104,10 +102,9 @@ public class GUI {
             pass = input.next();
 
             System.out.println("Introduceti parola iar");
-            if(pass.equals(input.next())) {
+            if (pass.equals(input.next())) {
                 get_pas = false;
-            }
-            else{
+            } else {
                 System.out.println("Parolele nu sunt la fel");
             }
         }
@@ -115,7 +112,7 @@ public class GUI {
         // Prelucrez cnp-ul, creez noul utilizator, apoi il bag in baza de date
         cnp = prelucrare_cnp(cnp);
 
-        User add_new = new User(prenume, nume, email, date, (int)cnp, pass);
+        User add_new = new User(prenume, nume, email, date, (int) cnp, pass);
 
         System.out.println(add_new);
 
@@ -129,9 +126,8 @@ public class GUI {
     }
 
     //Functia de autentificare in cont
-    private static int log_in(Scanner input){
+    private static int log_in(Scanner input) {
         User logged_user;
-        int incearca_logarea;
 
         System.out.println("Email");
         String username = input.next();
@@ -143,10 +139,53 @@ public class GUI {
 
         boolean is_logged_in = false;
         if (logged_user != null) is_logged_in = true;
+        else System.out.println("Contul nu exista sau userul si parola sunt gresite!");
 
-        while (is_logged_in){
-            System.out.println("Ce doriti sa faceti?\n1.Afiseaza cardurile si conturile\n2.\n3.\n9.Exit");
-            is_logged_in = false;
+        while (is_logged_in) {
+            System.out.println("Ce doriti sa faceti?\n" +
+                    "1.Afiseaza cardurile si conturile\n" +
+                    "2.Creeaza un card nou\n" +
+                    "5.Schimba parola\n" +
+                    "9.Deconectare \n" +
+                    "351.Stergerea contului");
+            int i = input.nextInt();
+            switch (i) {
+                case 1:
+                    System.out.println(logged_user.info_carduri());
+                    break;
+                case 2:
+                    logged_user.adauga_card(new Card(logged_user, 5000123, 999));
+                    break;
+                case 5:
+                    String parola_noua;
+                    while (true) {
+
+                        System.out.println("Introduceti noua parola\nDaca doresti sa anulezi scrie: \"exit\" ");
+                        parola_noua = input.next();
+
+                        if (parola_noua.equals("exit")) break;
+
+                        System.out.println("Introduceti noua parola din nou");
+                        if (parola_noua.equals(input.next())) {
+                            logged_user.setParola(parola_noua);
+                            break;
+                        } else System.out.println("Parolele nu sunt la fel");
+                    }
+                    break;
+                case 351:
+                    System.out.println("Daca va stergeti contul ve-ti pierde accesul la orice functionalitate a acestuia si la orice suma de bani depusa pe acesta\n" +
+                            "Introduceti prima si ultimele 6 cifre din codul numeric personal pentrua a va inchide contul");
+                    int cod = input.nextInt();
+                    if (cod == logged_user.getNumere_importante_cnp()) con.delete_user(logged_user);
+                    else System.out.println("Datele introduse sunt gresite\n" +
+                            "Din motive de securitate o sa va rugam sa va logati din nou");
+                    is_logged_in = false;
+                    break;
+                default:
+                    is_logged_in = false;
+                    break;
+            }
+
         }
 
 
@@ -157,7 +196,7 @@ public class GUI {
     public static void main(String[] args) {
 
         try {
-            con = Connection.connect(server_ip);
+            con = Connection.connect();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -175,7 +214,7 @@ public class GUI {
             }
 
             int i = 0;
-            switch (cazuri){
+            switch (cazuri) {
                 case 1:
                     i = register(input);
                     break;
@@ -190,7 +229,7 @@ public class GUI {
             }
             if (i == -1)
                 System.out.println("Datele introduse au avut o eroare");
-
+            con.renew_users();
         }
 
     }

@@ -30,4 +30,12 @@ public class Cont {
         this.suma_disponibila = new BigDecimal(0);
         this.proprietar = proprietar;
     }
+
+    @Override
+    public String toString() {
+        return "\n   Contul " + nume + "\n" +
+                "   Suma disponibila este: " + suma_disponibila +
+                "\n    Iban='" + iban +
+                "\n    BIC='" + bic;
+    }
 }

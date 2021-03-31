@@ -31,6 +31,10 @@ public class User implements Comparable<User> {
         return nume;
     }
 
+    public int getNumere_importante_cnp() {
+        return numere_importante_cnp;
+    }
+
     public void setParola(String parola) {
         this.parola = parola;
     }
@@ -42,6 +46,7 @@ public class User implements Comparable<User> {
         this.data_nasterii = data_nasterii;
         this.numere_importante_cnp = numere_importante_cnp;
         this.parola = parola;
+        carduri = new Card[0];
     }
 
 
@@ -52,6 +57,15 @@ public class User implements Comparable<User> {
     public void adauga_card(Card card){
         carduri = new Card[carduri.length + 1];
         carduri[carduri.length - 1] = card;
+    }
+
+    public String info_carduri(){
+        if (carduri != null) {
+            StringBuilder s = new StringBuilder();
+            for (Card i : carduri) s.append(i.toString());
+            return s.toString();
+        }
+        return "Nu aveti inca un card";
     }
 
     @Override

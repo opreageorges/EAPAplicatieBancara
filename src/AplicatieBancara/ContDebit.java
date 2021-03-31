@@ -16,8 +16,4 @@ public class ContDebit extends Cont{
         this.maxim_de_zile_gol = maxim_de_zile_gol;
     }
 
-
-    public void close(){
-
-    }
 }

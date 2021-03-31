@@ -6,8 +6,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.Month;
-import java.util.Arrays;
-import java.util.NoSuchElementException;
 import java.util.Scanner;
 import java.util.TreeSet;
 
@@ -15,21 +13,16 @@ import static java.lang.Integer.parseInt;
 
 public class Connection {
     private static Connection con = null;
-    private final String ip;
     private static File data_base;
     private static TreeSet<User> user_base;
 
-    private Connection(String ip) {
+    private Connection() {
         user_base = new TreeSet<User>();
-        this.ip = ip;
-
-        //Printez ceva sa arate frumos
-        System.out.println("Conexiunea la servarul " + ip + " al banci, a reusit.");
     }
 
-    public boolean verfica_email(String mail){
-        for ( User i : user_base ){
-            if(i.getEmail().equals(mail))
+    public boolean verfica_email(String mail) {
+        for (User i : user_base) {
+            if (i.getEmail().equals(mail))
                 return true;
         }
         return false;
@@ -68,16 +61,16 @@ public class Connection {
 //        int nr_users = nr_utilizatori(Dbase);
 //        user_base = new User[nr_users];
 
-        while(downloader.hasNext()) {
+        while (downloader.hasNext()) {
 
             //Creez lista de utilizatori
             String[] one_user_data = new String[8];
-            for(int i = 0; i < 8; i++){
+            for (int i = 0; i < 8; i++) {
                 one_user_data[i] = downloader.next();
             }
-            User one_user = new User(one_user_data[0], one_user_data[1], one_user_data[2], LocalDate.of(parseInt(one_user_data[3]) , Month.of(parseInt(one_user_data[4])), parseInt(one_user_data[5])), parseInt(one_user_data[6]), one_user_data[7]);
+            User one_user = new User(one_user_data[0], one_user_data[1], one_user_data[2], LocalDate.of(parseInt(one_user_data[3]), Month.of(parseInt(one_user_data[4])), parseInt(one_user_data[5])), parseInt(one_user_data[6]), one_user_data[7]);
 
-           user_base.add(one_user);
+            user_base.add(one_user);
         }
         return Dbase;
     }
@@ -85,40 +78,60 @@ public class Connection {
     //Functie ce salveaza un utilizator nou in fisier
     public void save_user(User user) throws IOException {
         //Creez un obiect care scrie in fisier
-        FileWriter user_saver = new FileWriter(data_base, true);
+        //FileWriter user_saver = new FileWriter(data_base, true);
 
         //Scriu noul utilizator
-        user_saver.append(user.save()).append('\n');
+        //user_saver.append(user.save()).append('\n');
 
         //Adaug noul utilizator si in baza de date activa
         user_base.add(user);
 
-        user_saver.close();
+        //user_saver.close();
 
     }
 
-    public User log_in_account(String username, String pass){
-        User matching_user = null;
-        for(User i : user_base){
-            if (i != null && i.getEmail().equals(username) && i.getParola().equals(pass)){
+    //Functie pentru a sterege un utilizator
+    public void delete_user(User user){
+        user_base.remove(user);
+    }
+
+    // Functie care salveaza din nou
+    public void renew_users() {
+
+        FileWriter user_saver;
+        try {
+            user_saver = new FileWriter(data_base);
+
+            for (User i : user_base) {
+                user_saver.append(i.save()).append('\n');
+            }
+            user_saver.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public User log_in_account(String username, String pass) {
+        User matching_user;
+        for (User i : user_base) {
+            if (i != null && i.getEmail().equals(username) && i.getParola().equals(pass)) {
                 matching_user = i;
                 System.out.println("Bine ati revenit " + matching_user.getPrenume() + " " + matching_user.getNume());
                 return matching_user;
             }
         }
 
-        return matching_user;
+        return null;
     }
 
 
-
     // Simulare de conexiune
-    public static Connection connect(String ip) throws FileNotFoundException {
+    public static Connection connect() throws FileNotFoundException {
 
         if (con == null) {
 
             //Creez obiectul care imita o conexiune la un server
-            con = new Connection(ip);
+            con = new Connection();
 
             //Pronesc functia de incarcare a datelor
             data_base = load();
