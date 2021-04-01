@@ -62,7 +62,7 @@ public class User implements Comparable<User> {
     public String info_carduri(){
         if (carduri != null) {
             StringBuilder s = new StringBuilder();
-            for (Card i : carduri) s.append(i.toString());
+            for (Card i : carduri) if(i != null) s.append(i.toString());
             return s.toString();
         }
         return "Nu aveti inca un card";

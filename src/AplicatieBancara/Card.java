@@ -26,9 +26,9 @@ public class Card {
 
     //Mod temporar de a testa conturile
     private void auto_conturi(){
-        add_cont(new ContDebit("Nume1", LocalDate.now(), "RO0001", "BIC1", this, 10));
-        add_cont(new ContDebit("Nume2", LocalDate.now(), "RO0002", "BIC2", this, 10));
-        add_cont(new ContDebit("Nume3", LocalDate.now(), "RO0003", "BIC3", this, 10));
+        add_cont(new ContDebit("Nume1", LocalDate.now(), "RO0001", "BIC1", this ));
+        add_cont(new ContDebit("Nume2", LocalDate.now(), "RO0002", "BIC2", this ));
+        add_cont(new ContDebit("Nume3", LocalDate.now(), "RO0003", "BIC3", this ));
         add_cont(new ContCredit("Nume4", LocalDate.now(), "RO0004", "BIC4", this));
         add_cont(new ContCredit("Nume5", LocalDate.now(), "RO0005", "BIC5", this));
         add_cont(new ContCredit("Nume6", LocalDate.now(), "RO0006", "BIC6", this));
