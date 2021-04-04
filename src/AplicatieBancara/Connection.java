@@ -17,7 +17,7 @@ public class Connection {
     private static TreeSet<User> user_base;
 
     private Connection() {
-        user_base = new TreeSet<User>();
+        user_base = new TreeSet<>();
     }
 
     public boolean verfica_email(String mail) {
