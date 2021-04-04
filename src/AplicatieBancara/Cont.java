@@ -37,7 +37,7 @@ public class Cont {
         this.proprietar = proprietar;
     }
 
-    public void addMoney(int suma){
+    public void addMoney(float suma){
         BigDecimal suma_big = new BigDecimal(suma);
         suma_disponibila = suma_disponibila.add(suma_big);
     }

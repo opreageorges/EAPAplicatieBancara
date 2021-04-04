@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.time.Month;
 import java.util.Scanner;
 import java.time.LocalDate;
-
 import static java.lang.Long.parseLong;
 import static java.lang.Math.pow;
 import static javax.xml.bind.DatatypeConverter.parseInt;
@@ -128,7 +127,7 @@ public class GUI {
     }
 
     private static void tranzactie(Cont cont, Scanner input) {
-        Transfer transfer;
+        Transfer transfer = new Transfer();
         System.out.println("Ce tip de traznactie doriti sa efectuati?\n" +
                 "1.Transfer catre un beneficiar\n" +
                 "2.Plata unei facturi catre o firma partenera\n" +
@@ -140,11 +139,18 @@ public class GUI {
                 String iban = input.next();
 
                 System.out.println("Introduceti suma pe care doriti sa o transferati");
-                float suma = input.nextFloat();
+                float suma_transfer = input.nextFloat();
+                transfer.transferIntrePersoane(cont, iban, suma_transfer);
 
                 break;
             case 2:
-                FactoryPlata factoryPlata = new FactoryPlata();
+                System.out.println("Introduceti numele firmei careia doriti sa ii efectuati transferul");
+                String nume_firma = input.next();
+
+                System.out.println("Introduceti suma pe care doriti sa o tranferati");
+                float suma_plata = input.nextFloat();
+
+                transfer.plataFirma(cont, nume_firma, suma_plata);
                 break;
 
             default:
@@ -236,7 +242,7 @@ public class GUI {
                     Cont temp_cont = con.get_cont(input.next(), logged_user);
 
                     System.out.println("Introduce-ti suma pe care doriti sa o depuneti");
-                    int temp_suma = input.nextInt();
+                    float temp_suma = input.nextFloat();
 
                     if(temp_cont != null) temp_cont.addMoney(temp_suma);
                     else System.out.println("Contul nu exista");

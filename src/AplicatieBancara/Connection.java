@@ -20,6 +20,7 @@ public class Connection {
 
     private Connection() {
         user_base = new TreeSet<>();
+        firme_partenere = new ArrayList<>();
     }
 
     public boolean verfica_email(String mail) {
@@ -48,8 +49,15 @@ public class Connection {
 
             user_base.add(one_user);
         }
+        downloader.close();
 
-//        File firme_file = new File()
+        File firme_file = new File("DataBase/FirmePartenere.txt");
+        Scanner downParteneri = new Scanner(firme_file);
+
+        while (downParteneri.hasNext()) {
+            firme_partenere.add(downParteneri.next());
+        }
+        downParteneri.close();
 
         return Dbase;
     }
