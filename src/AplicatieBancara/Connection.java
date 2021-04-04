@@ -6,6 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.Month;
+import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.TreeSet;
 
@@ -15,6 +16,7 @@ public class Connection {
     private static Connection con = null;
     private static File data_base;
     private static TreeSet<User> user_base;
+    private static ArrayList<String> firme_partenere;
 
     private Connection() {
         user_base = new TreeSet<>();
@@ -28,38 +30,12 @@ public class Connection {
         return false;
     }
 
-//    Functie de care nu mai am nevoie
-//    Functie pentru aflarea nr de utilizatori(nr de linii din fisier)
-//    private static int nr_utilizatori(File Dbase) throws FileNotFoundException {
-//
-//        //Scanez fisierul si atata timp cat am o linie noua, cresc nr de linii.
-//        Scanner downloader = new Scanner(Dbase);
-//        int lines = 0;
-//        while(true) {
-//
-//            //Cand arunca exceptia ca nu mai are linie noua opreste bucla
-//            try {
-//                downloader.nextLine();
-//                lines++;
-//            } catch (NoSuchElementException e) {
-//                break;
-//            }
-//
-//        }
-//        downloader.close();
-//        return lines;
-//    }
-
     //Functie ce incarca utilizatorii din fisier
     private static File load() throws FileNotFoundException {
 
         //Deschid baza de clienti si creez obiectul care citeste din fisier
-        File Dbase = new File("C:\\Facultate\\EAP\\EAP project\\DataBase\\Userbase.txt");
+        File Dbase = new File("DataBase/Userbase.txt");
         Scanner downloader = new Scanner(Dbase);
-
-//        Aflu cati utilizatori am deja stocati si creez un spatiu de stocare pentru ei
-//        int nr_users = nr_utilizatori(Dbase);
-//        user_base = new User[nr_users];
 
         while (downloader.hasNext()) {
 
@@ -72,6 +48,9 @@ public class Connection {
 
             user_base.add(one_user);
         }
+
+//        File firme_file = new File()
+
         return Dbase;
     }
 
@@ -124,6 +103,9 @@ public class Connection {
         return null;
     }
 
+    public Cont get_cont(String nume_cont, User user){
+        return user.getCont(nume_cont);
+    }
 
     // Simulare de conexiune
     public static Connection connect() throws FileNotFoundException {

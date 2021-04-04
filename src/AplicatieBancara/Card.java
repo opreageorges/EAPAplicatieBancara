@@ -13,6 +13,10 @@ public class Card {
         return number;
     }
 
+    public ArrayList<Cont> getConturi() {
+        return conturi;
+    }
+
     public Card(User proprietar) {
         this.proprietar = proprietar;
 

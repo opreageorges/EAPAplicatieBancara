@@ -81,6 +81,16 @@ public class User implements Comparable<User> {
 
     }
 
+    public Cont getCont(String nume_cont_or_iban){
+        for (Card i : carduri){
+            ArrayList<Cont> temp_conturi = i.getConturi();
+            for (Cont c : temp_conturi){
+                if ( c.getNume().equals(nume_cont_or_iban) || c.getIban().equals(nume_cont_or_iban)) return c;
+            }
+        }
+        return null;
+    }
+
     public String infoCarduri(long number){
         StringBuilder s = new StringBuilder();
         if (number == 0L) {
@@ -100,6 +110,7 @@ public class User implements Comparable<User> {
     public long getRandomLongFromUser(){
         return generator.nextLong();
     }
+
 
     @Override
     public boolean equals(Object o) {

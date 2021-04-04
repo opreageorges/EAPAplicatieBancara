@@ -3,7 +3,6 @@ package AplicatieBancara;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.time.Month;
-import java.util.Locale;
 import java.util.Scanner;
 import java.time.LocalDate;
 
@@ -128,6 +127,31 @@ public class GUI {
         return 0;
     }
 
+    private static void tranzactie(Cont cont, Scanner input) {
+        Transfer transfer;
+        System.out.println("Ce tip de traznactie doriti sa efectuati?\n" +
+                "1.Transfer catre un beneficiar\n" +
+                "2.Plata unei facturi catre o firma partenera\n" +
+                "3.Inapoi");
+        int i = input.nextInt();
+        switch (i){
+            case 1:
+                System.out.println("Introduceti iban-ul beneficiarului");
+                String iban = input.next();
+
+                System.out.println("Introduceti suma pe care doriti sa o transferati");
+                float suma = input.nextFloat();
+
+                break;
+            case 2:
+                FactoryPlata factoryPlata = new FactoryPlata();
+                break;
+
+            default:
+                break;
+        }
+    }
+
     //Functia de autentificare in cont
     private static int log_in(Scanner input) {
         User logged_user;
@@ -151,7 +175,9 @@ public class GUI {
                     "3.Sterge un card\n" +
                     "4.Deschide un cont nou\n" +
                     "5.Inchide un cont\n" +
-                    "6.Schimba parola\n" +
+                    "6.Alimenteaza un cont\n" +
+                    "7.Realizeaza o tranzactie\n" +
+                    "8.Schimba parola\n" +
                     "9.Deconectare \n" +
                     "351.Stergerea contului");
             int i = input.nextInt();
@@ -206,6 +232,24 @@ public class GUI {
                     break;
 
                 case 6:
+                    System.out.println("Introduceti numele contului pe care doriti sa-l alimentati");
+                    Cont temp_cont = con.get_cont(input.next(), logged_user);
+
+                    System.out.println("Introduce-ti suma pe care doriti sa o depuneti");
+                    int temp_suma = input.nextInt();
+
+                    if(temp_cont != null) temp_cont.addMoney(temp_suma);
+                    else System.out.println("Contul nu exista");
+                    break;
+
+                case 7:
+                    System.out.println("Introduceti numele contului de pe care doriti sa faceti tranzactia");
+                    Cont temp_cont_tran = con.get_cont(input.next(), logged_user);
+
+                    tranzactie(temp_cont_tran, input);
+                    break;
+
+                case 8:
                     String parola_noua;
                     while (true) {
 
@@ -243,7 +287,6 @@ public class GUI {
 
         return 0;
     }
-
 
     public static void main(String[] args) {
 

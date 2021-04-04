@@ -11,6 +11,14 @@ public class Cont {
     protected BigDecimal suma_disponibila;
     protected Card proprietar;
 
+    public String getNume() {
+        return nume;
+    }
+
+    public String getIban() {
+        return iban;
+    }
+
     // Creaza un cont cu o depunere initiala
     public Cont(String nume, String iban,  BigDecimal suma_disponibila, Card proprietar) {
         this.nume = nume;
@@ -29,10 +37,15 @@ public class Cont {
         this.proprietar = proprietar;
     }
 
+    public void addMoney(int suma){
+        BigDecimal suma_big = new BigDecimal(suma);
+        suma_disponibila = suma_disponibila.add(suma_big);
+    }
+
     @Override
     public String toString() {
-        return "\n   Contul " + nume + "\n" +
-                "   Suma disponibila este: " + suma_disponibila +
+        return "\n   Contul " + nume +
+                "\n    Suma disponibila este: " + suma_disponibila +
                 "\n    Iban='" + iban +
                 "\n    BIC='" + bic;
     }

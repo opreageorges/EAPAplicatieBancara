@@ -1,7 +1,6 @@
 package AplicatieBancara;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 
 public class ContDebit extends Cont{
     private final int maxim_de_zile_gol = 90;
