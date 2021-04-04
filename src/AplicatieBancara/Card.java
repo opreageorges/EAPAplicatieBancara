@@ -1,39 +1,81 @@
 package AplicatieBancara;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class Card {
-    private User proprietar;
-    private long number;
-    private int cvv_cvc;
+    private final User proprietar;
+    private final long number;
+    private final int cvv_cvc;
     private ArrayList<Cont> conturi;
 
-    public Card(User proprietar, int number, int cvv_cvc) {
+    public long getNumber() {
+        return number;
+    }
+
+    public Card(User proprietar) {
         this.proprietar = proprietar;
-        this.number = number;
-        this.cvv_cvc = cvv_cvc;
+
+        int tempcvc = 0;
+        while (tempcvc<100) tempcvc = proprietar.getRandomIntFromUser(999);
+        cvv_cvc = tempcvc;
+
+        number = generateNumber();
+
         conturi = new ArrayList<>();
-        auto_conturi();
-    }
-    public void add_cont(ContDebit cont){
-        conturi.add(cont);
     }
 
-    public void add_cont(ContCredit cont){
-        conturi.add(cont);
+    private long generateNumber() {
+        long temp_number = 5L;
+        while (temp_number < 50000000) {
+            temp_number = temp_number*10 + proprietar.getRandomIntFromUser(9);
+        }
+        return temp_number;
     }
 
-    //Mod temporar de a testa conturile
-    private void auto_conturi(){
-        add_cont(new ContDebit("Nume1", LocalDate.now(), "RO0001", "BIC1", this ));
-        add_cont(new ContDebit("Nume2", LocalDate.now(), "RO0002", "BIC2", this ));
-        add_cont(new ContDebit("Nume3", LocalDate.now(), "RO0003", "BIC3", this ));
-        add_cont(new ContCredit("Nume4", LocalDate.now(), "RO0004", "BIC4", this));
-        add_cont(new ContCredit("Nume5", LocalDate.now(), "RO0005", "BIC5", this));
-        add_cont(new ContCredit("Nume6", LocalDate.now(), "RO0006", "BIC6", this));
+    private String generateIban(){
 
+        int temp1 = 0;
+        while(temp1 <100) temp1 = proprietar.getRandomIntFromUser(999);
+        String iban = "RO" + temp1;
+
+        long temp2 = 0L;
+        while (temp2 < 10000000L) temp2 = proprietar.getRandomLongFromUser();
+        iban = iban + "BNK" + temp2;
+
+        return iban;
     }
+
+    public void deschideCont(String tip, String nume){
+        String iban = generateIban();
+        switch (tip.toUpperCase()){
+            case "CREDIT":
+                conturi.add(new ContCredit(nume, iban, this));
+                break;
+            case "DEBIT":
+                conturi.add(new ContDebit(nume, iban, this));
+                break;
+        }
+    }
+
+    public void inchideCont(String nume){
+        conturi.removeIf(i -> i.nume.equals(nume));
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Card card = (Card) o;
+        return number == card.number && cvv_cvc == card.cvv_cvc;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(number, cvv_cvc);
+    }
+
     @Override
     public String toString() {
         StringBuilder s = new StringBuilder();

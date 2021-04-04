@@ -3,6 +3,7 @@ package AplicatieBancara;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.time.Month;
+import java.util.Locale;
 import java.util.Scanner;
 import java.time.LocalDate;
 
@@ -70,25 +71,27 @@ public class GUI {
                     System.out.println("Data nasterii este inexistenta");
                     bool_date_numerice = true;
                 }
+                else {
+                    if (LocalDate.now().getYear() - an < 18) {
+                        System.out.println("Aceasta banca nu accepta clienti minori");
+                        return -1;
+                    }
 
-                if (LocalDate.now().getYear() - an < 18) {
-                    System.out.println("Aceasta banca nu accepta clienti minori");
-                    return -1;
+                    System.out.println("Introduceti cnpul:");
+                    temp = input.next();
+                    cnp = parseLong(temp);
+
+                    //Verific daca cnp-ul are numarul minim de cifre
+                    if (cnp < (long) pow(10, 12)) {
+                        bool_date_numerice = true;
+                        System.out.println("CNP incorect");
+                    }
+
+                    date = LocalDate.of(an, Month.of(luna), zi);
                 }
 
-                System.out.println("Introduceti cnpul:");
-                temp = input.next();
-                cnp = parseLong(temp);
-
-                //Verific daca cnp-ul are numarul minim de cifre
-                if (cnp < (long) pow(10, 12)) {
-                    bool_date_numerice = true;
-                    System.out.println("CNP incorect");
-                }
-
-                date = LocalDate.of(an, Month.of(luna), zi);
             } catch (Exception e) {
-                e.printStackTrace();
+                // e.printStackTrace();
                 bool_date_numerice = true;
                 System.out.println("Datele introduse sunt eronate");
             }
@@ -145,22 +148,69 @@ public class GUI {
             System.out.println("Ce doriti sa faceti?\n" +
                     "1.Afiseaza cardurile si conturile\n" +
                     "2.Creeaza un card nou\n" +
-                    "5.Schimba parola\n" +
+                    "3.Sterge un card\n" +
+                    "4.Deschide un cont nou\n" +
+                    "5.Inchide un cont\n" +
+                    "6.Schimba parola\n" +
                     "9.Deconectare \n" +
                     "351.Stergerea contului");
             int i = input.nextInt();
             switch (i) {
                 case 1:
-                    System.out.println(logged_user.info_carduri());
+                    System.out.println(logged_user.infoCarduri(0L));
                     break;
+
                 case 2:
-                    logged_user.adauga_card(new Card(logged_user, 5000123, 999));
+                    logged_user.adaugaCard(new Card(logged_user));
                     break;
+
+                case 3:
+                    System.out.println("Introduceti numarul cardului pe care doriti sa-l stergeti");
+                    logged_user.stergeCard(input.nextLong());
+                    break;
+
+                case 4:
+                    System.out.println("Introduceti numarul cardului in care doriti noul count");
+                    long temp_number = input.nextLong();
+
+                    System.out.println("Introduceti ce nume doriti sa aiba contul");
+                    String nume_cont = input.next();
+
+                    while(true) {
+                        System.out.println("Ce tip de card doriti sa creati?\n" +
+                                "Debit sau Credit\n" +
+                                "Daca doriti mai multe informatii introduceti \"info\"\n");
+                        String tip_cont = input.next();
+                        if (tip_cont.equalsIgnoreCase("INFO")) {
+                            System.out.println("Politicile bancii sunt:\n" +
+                                    "Contul de debit nu poate fi gol mai mult de 90 de zile\n" +
+                                    "Contul de credit are o limita de 5000 de lei si o dobandat fixa de 10%");
+                        }
+                        else if(tip_cont.equalsIgnoreCase("CREDIT") || tip_cont.equalsIgnoreCase("DEBIT")){
+                            logged_user.deschideCont(temp_number, nume_cont, tip_cont);
+                            break;
+                        }
+                        else System.out.println("Aceasta varinata nu exista");
+
+                    }
+                    break;
+
                 case 5:
+                    System.out.println(logged_user.infoCarduri(0L) +
+                            "\nIntroduceti numarul cardului din care doriti sa stergeti un cont");
+                    long temp_number_del = input.nextLong();
+                    System.out.println(logged_user.infoCarduri(temp_number_del) +
+                            "\nIntrdouceti numele contului");
+                    String nume_cont_del = input.next();
+                    logged_user.inchideCont(temp_number_del, nume_cont_del);
+                    break;
+
+                case 6:
                     String parola_noua;
                     while (true) {
 
-                        System.out.println("Introduceti noua parola\nDaca doresti sa anulezi scrie: \"exit\" ");
+                        System.out.println("Introduceti noua parola\n" +
+                                "Daca doresti sa anulezi scrie: \"exit\" ");
                         parola_noua = input.next();
 
                         if (parola_noua.equals("exit")) break;
@@ -172,6 +222,7 @@ public class GUI {
                         } else System.out.println("Parolele nu sunt la fel");
                     }
                     break;
+
                 case 351:
                     System.out.println("Daca va stergeti contul ve-ti pierde accesul la orice functionalitate a acestuia si la orice suma de bani depusa pe acesta\n" +
                             "Introduceti prima si ultimele 6 cifre din codul numeric personal pentrua a va inchide contul");
@@ -181,6 +232,7 @@ public class GUI {
                             "Din motive de securitate o sa va rugam sa va logati din nou");
                     is_logged_in = false;
                     break;
+
                 default:
                     is_logged_in = false;
                     break;

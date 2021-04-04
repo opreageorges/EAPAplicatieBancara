@@ -12,19 +12,19 @@ public class Cont {
     protected Card proprietar;
 
     // Creaza un cont cu o depunere initiala
-    public Cont(String nume, LocalDate data_deschiderii, String iban, BigDecimal suma_disponibila, Card proprietar) {
+    public Cont(String nume, String iban,  BigDecimal suma_disponibila, Card proprietar) {
         this.nume = nume;
-        this.data_deschiderii = data_deschiderii;
         this.iban = iban;
+        this.data_deschiderii = LocalDate.now();
         this.suma_disponibila = suma_disponibila;
         this.proprietar = proprietar;
     }
 
     // Creaza un cont gol
-    public Cont(String nume, LocalDate data_deschiderii, String iban, Card proprietar) {
+    public Cont(String nume, String iban, Card proprietar) {
         this.nume = nume;
-        this.data_deschiderii = data_deschiderii;
         this.iban = iban;
+        this.data_deschiderii = LocalDate.now();
         this.suma_disponibila = new BigDecimal(0);
         this.proprietar = proprietar;
     }
