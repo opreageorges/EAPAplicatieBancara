@@ -1,337 +1,393 @@
 package AplicatieBancara;
 
+//WIP
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
 import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.time.Month;
-import java.util.Scanner;
 import java.time.LocalDate;
-import static java.lang.Long.parseLong;
-import static java.lang.Math.pow;
-import static javax.xml.bind.DatatypeConverter.parseInt;
+import java.util.ArrayList;
 
-public class GUI {
+
+public class GUI implements ActionListener {
     private static Connection con;
+    private final JFrame frame;
+    private final ArrayList<JButton> buttons;
 
-    //Functie pentru a salva doar numere importante
-    private static long prelucrare_cnp(long cnp) {
-        return ((cnp / (long) pow(10, 12)) * (long) pow(10, 6)) + (cnp % (long) (pow(10, 6)));
+    private GUI(){
+        frame = new JFrame("Aplicatie Bancara");
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosed(WindowEvent e) {
+                super.windowClosed(e);
+                System.out.println("test");
+                con.renew_users();
+            }
+        });
+
+        ImageIcon icon = new ImageIcon("Icon.png");
+        frame.setIconImage(icon.getImage());
+        buttons = new ArrayList<>(3);
+        buttons.add(new JButton("Autentificare"));
+        buttons.add(new JButton("Register"));
+        buttons.add(new JButton("Exit"));
+
     }
 
-    // Functia de inregistrare
-    private static int register(Scanner input) {
-        //Cer datele pe rand de la utilizator
-        boolean mail_verfier = true;
-        String email = null;
-        while (mail_verfier) {
-            mail_verfier = false;
-            System.out.println("Introduceti emailul");
-            email = input.next();
+    private void mainMenu(){
+        frame.getContentPane().removeAll();
+        frame.setPreferredSize(new Dimension(800,1000));
+        JPanel panel = new JPanel();
+        frame.add(panel, BorderLayout.CENTER);
 
-            if (email.equals("exit")) {
-                return 0;
-            } else if (con.verfica_email(email)) {
-                mail_verfier = true;
-                System.out.println("Exista deja un cont cu acest email\nDaca doresti sa anulezi scrie: \"exit\"");
-            }
+        panel.setBorder(BorderFactory.createEmptyBorder(200,200,200,200));
+        panel.setLayout(new GridLayout(0,1));
 
-        }
-        System.out.println("Introduceti prenumele");
-        String prenume = input.next();
-
-        System.out.println("Introduceti numele");
-        String nume = input.next();
-
-        //Citesc datele care pot avea o forma gresita
-        int zi, luna, an;
-        LocalDate date = LocalDate.now();
-        long cnp = 0;
-
-        boolean bool_date_numerice = true;
-        while (bool_date_numerice) {
-            try {
-                bool_date_numerice = false;
-                String temp;
-
-                System.out.println("Introduceti data nasterii, in format numeric\nZiua:");
-                temp = input.next();
-                zi = parseInt(temp);
-
-                System.out.println("Luna:");
-                temp = input.next();
-                luna = parseInt(temp);
-
-                System.out.println("Anul:");
-                temp = input.next();
-                an = parseInt(temp);
-
-                // Verific ca data nasterii sa aiba o putin de sens
-                if (zi > 31 || zi < 0 || luna > 12 || luna < 0 || an < 0) {
-                    System.out.println("Data nasterii este inexistenta");
-                    bool_date_numerice = true;
-                }
-                else {
-                    if (LocalDate.now().getYear() - an < 18) {
-                        System.out.println("Aceasta banca nu accepta clienti minori");
-                        return -1;
-                    }
-
-                    System.out.println("Introduceti cnpul:");
-                    temp = input.next();
-                    cnp = parseLong(temp);
-
-                    //Verific daca cnp-ul are numarul minim de cifre
-                    if (cnp < (long) pow(10, 12)) {
-                        bool_date_numerice = true;
-                        System.out.println("CNP incorect");
-                    }
-
-                    date = LocalDate.of(an, Month.of(luna), zi);
-                }
-
-            } catch (Exception e) {
-                // e.printStackTrace();
-                bool_date_numerice = true;
-                System.out.println("Datele introduse sunt eronate");
-            }
+        for(JButton i: buttons){
+            i.addActionListener(this);
+            panel.add(i);
         }
 
-        // Cand citesc parola verific daca este scrisa corect
-        String pass = null;
-        boolean get_pas = true;
-        while (get_pas) {
-            System.out.println("Introduceti parola");
-            pass = input.next();
-
-            System.out.println("Introduceti parola iar");
-            if (pass.equals(input.next())) {
-                get_pas = false;
-            } else {
-                System.out.println("Parolele nu sunt la fel");
-            }
-        }
-
-        // Prelucrez cnp-ul, creez noul utilizator, apoi il bag in baza de date
-        cnp = prelucrare_cnp(cnp);
-
-        User add_new = new User(prenume, nume, email, date, (int) cnp, pass);
-
-        System.out.println(add_new);
-
-        try {
-            con.save_user(add_new);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return 0;
+        frame.pack();
+        frame.setVisible(true);
     }
 
-    private static void tranzactie(Cont cont, Scanner input) {
-        Transfer transfer = new Transfer();
-        System.out.println("Ce tip de traznactie doriti sa efectuati?\n" +
-                "1.Transfer catre un beneficiar\n" +
-                "2.Plata unei facturi catre o firma partenera\n" +
-                "3.Inapoi");
-        int i = input.nextInt();
-        switch (i){
-            case 1:
-                System.out.println("Introduceti iban-ul beneficiarului");
-                String iban = input.next();
+    private void mainUI(User logged_user){
 
-                System.out.println("Introduceti suma pe care doriti sa o transferati");
-                float suma_transfer = input.nextFloat();
-                transfer.transferIntrePersoane(cont, iban, suma_transfer);
+        frame.getContentPane().removeAll();
+        frame.setLayout(new GridLayout(0,1));
+        frame.setPreferredSize(new Dimension(1000,600));
 
+        JPanel panel = new JPanel();
+        frame.add(panel);
+        panel.setBorder(BorderFactory.createEmptyBorder(50,50,50,50));
+        panel.setLayout(new GridLayout(0,1,50,50));
+
+        // Info Carduri
+        ArrayList<Card> carduri_user;
+        carduri_user = logged_user.infoCarduri();
+
+        //// TESTING! POSIBIL BOOOM
+        for( int i = 0; i <3; i++ ) logged_user.adaugaCard(new Card(logged_user));
+        for (Card i : logged_user.getCarduri()){
+            i.deschideCont("DEBIT", "Testing DEBIT");
+            i.deschideCont("CREDIT", "Testing CREDIT");
+            i.deschideCont("DEBIT", "Testing DEBIT");
+            i.deschideCont("CREDIT", "Testing CREDIT");
+            i.deschideCont("DEBIT", "Testing DEBIT");
+            i.deschideCont("CREDIT", "Testing CREDIT");
+            i.deschideCont("DEBIT", "Testing DEBIT");
+            i.deschideCont("CREDIT", "Testing CREDIT");
+            i.deschideCont("DEBIT", "Testing DEBIT");
+            i.deschideCont("CREDIT", "Testing CREDIT");
+            i.deschideCont("DEBIT", "Testing DEBIT");
+            i.deschideCont("CREDIT", "Testing CREDIT");
+        }
+
+        /////
+
+        switch (carduri_user.size()) {
+            case 0:
+                JLabel fara_carduri = new JLabel("Nu aveti inca un card la banca noasta");
+                fara_carduri.setBorder(BorderFactory.createLineBorder(Color.black));
+                panel.add(fara_carduri);
                 break;
-            case 2:
-                System.out.println("Introduceti numele firmei careia doriti sa ii efectuati transferul");
-                String nume_firma = input.next();
+            case 1:
+                JPanel panou_card = new JPanel();
+                panou_card.setLayout(new GridLayout(0,2));
+                panou_card.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black), "Cardul dumneavoasta:"));
 
-                System.out.println("Introduceti suma pe care doriti sa o tranferati");
-                float suma_plata = input.nextFloat();
 
-                transfer.plataFirma(cont, nume_firma, suma_plata);
+
+
+                panel.add(panou_card);
                 break;
 
             default:
+                JPanel panou_carduri = new JPanel();
+                panou_carduri.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black), "Cardurile dumneavoasta:"));
+                panou_carduri.setLayout(new BorderLayout());
+
+                Long[] numere_carduri = new Long[logged_user.getCarduri().size()];
+
+                for (int i =0 ; i < logged_user.getCarduri().size(); i++){
+                    numere_carduri[i] = logged_user.getCarduri().get(i).getNumber();
+                }
+
+                JComboBox<Long> select_card = new JComboBox<>(numere_carduri);
+                select_card.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black), "Alegeti cardul:"));
+
+                panou_carduri.add(select_card, BorderLayout.NORTH);
+
+                ArrayList<JPanel> panouri_card_conturi = new ArrayList<>();
+
+                for(Card i : logged_user.getCarduri()){
+                    panouri_card_conturi.add(new JPanel());
+                    for(Cont j : i.getConturi()){
+                        JPanel panou_cont = new JPanel();
+                        panou_cont.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black), "Contul " + j.getNume()));
+                        panou_cont.setLayout(new GridLayout(2,2));
+                        panou_cont.add(new JLabel("Iban: " + j.getIban()));
+
+                        switch (j.getTip()){
+                            case "DEBIT":
+                                panou_cont.add(new JLabel("    Gol de : " + ((ContDebit) j).golDe() + " zile"));
+                                panou_cont.add(new JLabel("Suma disponibila: " + j.getSuma_disponibila()));
+                                break;
+                            case "CREDIT":
+                                panou_cont.add(Box.createGlue());
+                                panou_cont.add(new JLabel("Suma disponibila: " + j.getSuma_disponibila()));
+                                panou_cont.add(new JLabel("Datorie: " + ((ContCredit) j).getDatorie()));
+                                break;
+                        }
+                        panouri_card_conturi.get(panouri_card_conturi.size()-1).add(panou_cont);
+                    }
+                }
+
+                panou_carduri.add(panouri_card_conturi.get(0),BorderLayout.CENTER);
+
+                select_card.addActionListener(e -> {
+                    panou_carduri.remove(1);
+                    panou_carduri.add(panouri_card_conturi.get(select_card.getSelectedIndex()),BorderLayout.CENTER);
+                    panou_carduri.updateUI();
+                });
+
+                panel.add(panou_carduri);
                 break;
         }
+
+        // Deconectare
+        JButton deconectare = new JButton("Deconectare");
+        panel.add(deconectare);
+
+        deconectare.addActionListener(e -> logIn());
+
+        frame.add(panel);
+
+        frame.pack();
+        frame.setVisible(true);
     }
 
-    //Functia de autentificare in cont
-    private static int log_in(Scanner input) {
-        User logged_user;
+    private void logIn(){
+        frame.getContentPane().removeAll();
 
-        System.out.println("Email");
-        String username = input.next();
+        frame.setLayout(new GridLayout(0,1));
 
-        System.out.println("Parola");
-        String pass = input.next();
+        frame.setPreferredSize(new Dimension(1200,600));
 
-        logged_user = con.log_in_account(username, pass);
+        JPanel panel = new JPanel();
 
-        boolean is_logged_in = false;
-        if (logged_user != null) is_logged_in = true;
-        else System.out.println("Contul nu exista sau userul si parola sunt gresite!");
+        frame.add(panel);
 
-        while (is_logged_in) {
-            System.out.println("Ce doriti sa faceti?\n" +
-                    "1.Afiseaza cardurile si conturile\n" +
-                    "2.Creeaza un card nou\n" +
-                    "3.Sterge un card\n" +
-                    "4.Deschide un cont nou\n" +
-                    "5.Inchide un cont\n" +
-                    "6.Alimenteaza un cont\n" +
-                    "7.Realizeaza o tranzactie\n" +
-                    "8.Schimba parola\n" +
-                    "9.Deconectare \n" +
-                    "351.Stergerea contului");
-            int i = input.nextInt();
-            switch (i) {
-                case 1:
-                    System.out.println(logged_user.infoCarduri(0L));
-                    break;
+        panel.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
+        panel.setLayout(new GridLayout(3,3,10,10));
 
-                case 2:
-                    logged_user.adaugaCard(new Card(logged_user));
-                    break;
+        // Email
+        panel.add(Box.createGlue());
+        JTextField email = new JTextField();
 
-                case 3:
-                    System.out.println("Introduceti numarul cardului pe care doriti sa-l stergeti");
-                    logged_user.stergeCard(input.nextLong());
-                    break;
+        email.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black,5,true),"Email"));
 
-                case 4:
-                    System.out.println("Introduceti numarul cardului in care doriti noul count");
-                    long temp_number = input.nextLong();
+        panel.add(email);
 
-                    System.out.println("Introduceti ce nume doriti sa aiba contul");
-                    String nume_cont = input.next();
+        //Info Email
+        JLabel email_gresit = new JLabel("");
+        panel.add(email_gresit);
 
-                    while(true) {
-                        System.out.println("Ce tip de card doriti sa creati?\n" +
-                                "Debit sau Credit\n" +
-                                "Daca doriti mai multe informatii introduceti \"info\"\n");
-                        String tip_cont = input.next();
-                        if (tip_cont.equalsIgnoreCase("INFO")) {
-                            System.out.println("Politicile bancii sunt:\n" +
-                                    "Contul de debit nu poate fi gol mai mult de 90 de zile\n" +
-                                    "Contul de credit are o limita de 5000 de lei si o dobandat fixa de 10%");
-                        }
-                        else if(tip_cont.equalsIgnoreCase("CREDIT") || tip_cont.equalsIgnoreCase("DEBIT")){
-                            logged_user.deschideCont(temp_number, nume_cont, tip_cont);
-                            break;
-                        }
-                        else System.out.println("Aceasta varinata nu exista");
+        panel.add(Box.createGlue());
 
-                    }
-                    break;
 
-                case 5:
-                    System.out.println(logged_user.infoCarduri(0L) +
-                            "\nIntroduceti numarul cardului din care doriti sa stergeti un cont");
-                    long temp_number_del = input.nextLong();
-                    System.out.println(logged_user.infoCarduri(temp_number_del) +
-                            "\nIntrdouceti numele contului");
-                    String nume_cont_del = input.next();
-                    logged_user.inchideCont(temp_number_del, nume_cont_del);
-                    break;
+        //Parola
+        JTextField parola = new JPasswordField();
+        parola.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black,5,true),"Parola"));
 
-                case 6:
-                    System.out.println("Introduceti numele contului pe care doriti sa-l alimentati");
-                    Cont temp_cont = con.get_cont(input.next(), logged_user);
+        panel.add(parola);
 
-                    System.out.println("Introduce-ti suma pe care doriti sa o depuneti");
-                    float temp_suma = input.nextFloat();
+        //Info Parola
 
-                    if(temp_cont != null) temp_cont.addMoney(temp_suma);
-                    else System.out.println("Contul nu exista");
-                    break;
+        JLabel parola_gresita = new JLabel("");
+        panel.add(parola_gresita);
 
-                case 7:
-                    System.out.println("Introduceti numele contului de pe care doriti sa faceti tranzactia");
-                    Cont temp_cont_tran = con.get_cont(input.next(), logged_user);
+        //Inpoi
+        JButton inapoi = new JButton("Inapoi");
 
-                    tranzactie(temp_cont_tran, input);
-                    break;
+        inapoi.addActionListener(e -> mainMenu());
 
-                case 8:
-                    String parola_noua;
-                    while (true) {
+        panel.add(inapoi);
+        panel.add(Box.createGlue());
 
-                        System.out.println("Introduceti noua parola\n" +
-                                "Daca doresti sa anulezi scrie: \"exit\" ");
-                        parola_noua = input.next();
+        //Log in
 
-                        if (parola_noua.equals("exit")) break;
+        JButton login = new JButton("Autentificare");
+        login.addActionListener(e -> {
+            if (con.verifica_email(email.getText())){
+                email_gresit.setText("");
+                User logged_user = con.log_in_account(email.getText(), parola.getText());
+                if( logged_user != null ) mainUI(logged_user);
+                else parola_gresita.setText("Parola este gresita");
+            }
+            else email_gresit.setText("Emailul nu este asociat unui cont");
+        });
 
-                        System.out.println("Introduceti noua parola din nou");
-                        if (parola_noua.equals(input.next())) {
-                            logged_user.setParola(parola_noua);
-                            break;
-                        } else System.out.println("Parolele nu sunt la fel");
-                    }
-                    break;
 
-                case 351:
-                    System.out.println("Daca va stergeti contul ve-ti pierde accesul la orice functionalitate a acestuia si la orice suma de bani depusa pe acesta\n" +
-                            "Introduceti prima si ultimele 6 cifre din codul numeric personal pentrua a va inchide contul");
-                    int cod = input.nextInt();
-                    if (cod == logged_user.getNumere_importante_cnp()) con.delete_user(logged_user);
-                    else System.out.println("Datele introduse sunt gresite\n" +
-                            "Din motive de securitate o sa va rugam sa va logati din nou");
-                    is_logged_in = false;
-                    break;
+        panel.add(login);
 
-                default:
-                    is_logged_in = false;
-                    break;
+        frame.pack();
+        frame.setVisible(true);
+
+    }
+
+    private void register(){
+        frame.getContentPane().removeAll();
+
+        frame.setLayout(new GridLayout(0,1));
+
+        frame.setPreferredSize(new Dimension(1200,300));
+
+        JPanel panel = new JPanel();
+        panel.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
+        panel.setLayout(new GridLayout(0,3,10,10));
+
+        frame.add(panel);
+
+        // Nume Prenume Email
+
+        JTextField nume = new JTextField();
+        JTextField prenume = new JTextField();
+        JTextField email = new JTextField();
+
+        nume.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black,5,true),"Nume"));
+        prenume.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black,5,true),"Prenume"));
+        email.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black,5,true),"Email"));
+
+        panel.add(nume);
+        panel.add(prenume);
+        panel.add(email);
+
+        // CNP & Info CNP & Info parola
+
+        JLabel parola_gresita = new JLabel();
+        panel.add(parola_gresita);
+
+        JFormattedTextField cnp = new JFormattedTextField();
+        cnp.setValue(0L);
+        cnp.setText("");
+        panel.add(cnp);
+
+        JLabel cnp_gresit = new JLabel();
+        panel.add(cnp_gresit);
+
+        cnp.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black,5,true),"CNP"));
+
+        // Parola
+
+        JTextField pass1 = new JPasswordField();
+        JTextField pass2 = new JPasswordField();
+
+        pass1.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black,5,true),"Parola"));
+        pass2.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black,5,true),"Reintroduceti parola"));
+
+        panel.add(pass1);
+        panel.add(Box.createGlue());
+        panel.add(pass2);
+
+        // Done & exit
+
+        JButton done = new JButton("Creaza contul");
+        JButton exit = new JButton("Inapoi");
+
+        done.setBorder(BorderFactory.createBevelBorder(0));
+        exit.setBorder(done.getBorder());
+
+        panel.add(exit);
+
+        // Errmsg
+        JLabel errmsg = new JLabel();
+        panel.add(errmsg);
+
+        panel.add(done);
+
+        // Actiuni butoane
+
+        exit.addActionListener(e -> mainMenu());
+
+        final LocalDate[] data_nasterii = new LocalDate[1];
+
+        done.addActionListener(e -> {
+
+            if(!pass1.getText().equals(pass2.getText())) parola_gresita.setText("Parolele nu coincid!");
+            else if(pass1.getText().length() < 8 ) parola_gresita.setText("Parola este mai mica de 8 caractere");
+            else parola_gresita.setText("");
+
+            try {
+                con.verifica_parola(pass1.getText(), pass2.getText());
+                parola_gresita.setText("");
+            }
+            catch (Exception exception){
+                parola_gresita.setText(exception.getMessage());
             }
 
+            try{
+                data_nasterii[0] = con.get_data_from_cnp((long)cnp.getValue());
+                cnp_gresit.setText("");
+            } catch (Exception exception) {
+                cnp_gresit.setText(exception.getMessage());
+            }
+
+            if (con.verifica_email(email.getText())) errmsg.setText("Acest mail este deja folosit");
+            else errmsg.setText("");
+
+            if(parola_gresita.getText().length() == 0 && cnp_gresit.getText().length() == 0 && errmsg.getText().length() == 0){
+                con.save_user(new User(prenume.getText(), nume.getText(), email.getText(),data_nasterii[0], con.prelucrare_cnp((long)cnp.getValue()),pass1.getText() ));
+                int[] but_index = {0,1,2,4,6,8};
+                for (int i : but_index){
+                    JTextField t = (JTextField) panel.getComponent(i);
+                    t.setText("");
+                }
+            }
+
+        });
+
+        frame.pack();
+        frame.setVisible(true);
+
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+
+        switch (buttons.indexOf((JButton) e.getSource())){
+            case 0:
+                logIn();
+                break;
+
+            case 1:
+                register();
+                break;
+
+            default:
+                frame.dispose();
+                break;
         }
 
 
-        return 0;
     }
 
+
     public static void main(String[] args) {
+        GUI gui = new GUI();
 
         try {
             con = Connection.connect();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-        boolean bucla_principala = true;
-        while (bucla_principala) {
-            //Interfata text temporara pana fac GUI
-            System.out.println("Ce doriti sa faceti?\n 1:Inregistrare \n 2:Logare \n 3:Exit\n");
-            Scanner input = new Scanner(System.in);
-
-            int cazuri;
-            try {
-                cazuri = input.nextInt();
-            } catch (Exception e) {
-                break;
-            }
-
-            int i = 0;
-            switch (cazuri) {
-                case 1:
-                    i = register(input);
-                    break;
-
-                case 2:
-                    i = log_in(input);
-                    break;
-
-                default:
-                    bucla_principala = false;
-                    break;
-            }
-            if (i == -1)
-                System.out.println("Datele introduse au avut o eroare");
-            con.renew_users();
-        }
+        gui.mainMenu();
+        con.renew_users();
 
     }
+
+
 }

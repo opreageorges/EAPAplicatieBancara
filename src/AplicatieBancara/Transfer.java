@@ -1,13 +1,12 @@
 package AplicatieBancara;
 
-public class Transfer {
+public interface Transfer {
 
-    public void transferIntrePersoane(Cont cont_sursa, String iban_beneficiar, float suma_transferata ){
+    void transferIntrePersoane(String iban_beneficiar, float suma_transferata);
 
-    }
 
-    public void plataFirma(Cont cont_sursa, String nume_firma, float suma_transferata){
+    void plataFirma(String nume_firma, float suma_transferata);
 
-    }
+
 
 }

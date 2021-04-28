@@ -1,15 +1,14 @@
 package AplicatieBancara;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 
-public class Cont {
+public abstract class Cont implements Transfer{
     protected String nume;
-    protected final LocalDate data_deschiderii;
     protected final String iban;
     protected final String bic = "ROBCA420";
     protected BigDecimal suma_disponibila;
     protected Card proprietar;
+
 
     public String getNume() {
         return nume;
@@ -19,11 +18,14 @@ public class Cont {
         return iban;
     }
 
+    public BigDecimal getSuma_disponibila() {
+        return suma_disponibila;
+    }
+
     // Creaza un cont cu o depunere initiala
     public Cont(String nume, String iban,  BigDecimal suma_disponibila, Card proprietar) {
         this.nume = nume;
         this.iban = iban;
-        this.data_deschiderii = LocalDate.now();
         this.suma_disponibila = suma_disponibila;
         this.proprietar = proprietar;
     }
@@ -32,7 +34,6 @@ public class Cont {
     public Cont(String nume, String iban, Card proprietar) {
         this.nume = nume;
         this.iban = iban;
-        this.data_deschiderii = LocalDate.now();
         this.suma_disponibila = new BigDecimal(0);
         this.proprietar = proprietar;
     }
@@ -41,6 +42,8 @@ public class Cont {
         BigDecimal suma_big = new BigDecimal(suma);
         suma_disponibila = suma_disponibila.add(suma_big);
     }
+
+    abstract public String getTip();
 
     @Override
     public String toString() {

@@ -11,6 +11,7 @@ import java.util.Scanner;
 import java.util.TreeSet;
 
 import static java.lang.Integer.parseInt;
+import static java.lang.Math.pow;
 
 public class Connection {
     private static Connection con = null;
@@ -23,7 +24,20 @@ public class Connection {
         firme_partenere = new ArrayList<>();
     }
 
-    public boolean verfica_email(String mail) {
+    public LocalDate get_data_from_cnp(long cnp) throws Exception {
+        LocalDate out = LocalDate.now();
+        if (cnp < pow(10, 12) || cnp > 99*pow(10,11)) throw new Exception("Numarul de cifre al cnpului este gresit");
+        int temp = (int)(cnp / (long)pow(10,6));
+        System.out.println(temp);
+        return out;
+    }
+
+    public void verifica_parola(String pass1, String pass2) throws Exception {
+        if(!pass1.equals(pass2)) throw new Exception("Parolele nu coincid!");
+        else if(pass1.length() < 8 ) throw new Exception("Parola nu poate fi mai mica de 8 caractere!");
+    }
+
+    public boolean verifica_email(String mail) {
         for (User i : user_base) {
             if (i.getEmail().equals(mail))
                 return true;
@@ -36,10 +50,10 @@ public class Connection {
 
         //Deschid baza de clienti si creez obiectul care citeste din fisier
         File Dbase = new File("DataBase/Userbase.txt");
+
         Scanner downloader = new Scanner(Dbase);
-
+        downloader.useDelimiter("[,\\n]");
         while (downloader.hasNext()) {
-
             //Creez lista de utilizatori
             String[] one_user_data = new String[8];
             for (int i = 0; i < 8; i++) {
@@ -63,18 +77,12 @@ public class Connection {
     }
 
     //Functie ce salveaza un utilizator nou in fisier
-    public void save_user(User user) throws IOException {
-        //Creez un obiect care scrie in fisier
-        //FileWriter user_saver = new FileWriter(data_base, true);
-
-        //Scriu noul utilizator
-        //user_saver.append(user.save()).append('\n');
-
-        //Adaug noul utilizator si in baza de date activa
+    public void save_user(User user){
         user_base.add(user);
+    }
 
-        //user_saver.close();
-
+    public int prelucrare_cnp(long cnp) {
+        return (int)(((cnp / (long) pow(10, 12)) * (long) pow(10, 6)) + (cnp % (long) (pow(10, 6))));
     }
 
     //Functie pentru a sterege un utilizator
@@ -85,14 +93,34 @@ public class Connection {
     // Functie care salveaza din nou
     public void renew_users() {
 
-        FileWriter user_saver;
+        FileWriter user_saver,user_data_saver;
         try {
             user_saver = new FileWriter(data_base);
 
             for (User i : user_base) {
                 user_saver.append(i.save()).append('\n');
+                user_data_saver = new FileWriter( "DataBase/UserInfo/" + i.getEmail() + i.getNumere_importante_cnp()+".txt");
+                for (Card j : i.getCarduri()){
+                    for(Cont t : j.getConturi()){
+                        user_data_saver.append(t.getNume()).append(",").append(t.getSuma_disponibila().toString()).append(",");
+                        switch (t.getTip()){
+                            case "DEBIT":
+                                user_data_saver.append(String.valueOf(((ContDebit) t).golDe()));
+                                break;
+                            case "CREDIT":
+                                user_data_saver.append(((ContCredit) t).getDatorie().toString());
+                                break;
+                        }
+                        user_data_saver.append(",").append(t.getTip()).append(",");
+                    }
+                    user_data_saver.append("NEXTCARD,");
+                }
+
+                user_data_saver.close();
             }
+
             user_saver.close();
+
         } catch (IOException e) {
             e.printStackTrace();
         }

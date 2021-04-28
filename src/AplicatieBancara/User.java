@@ -11,12 +11,9 @@ public class User implements Comparable<User> {
     private final String email;
     private final LocalDate data_nasterii;
     private final Random generator;
-
-    // primul numar si ultimele 6 numere, restul ar fi irelevante pentru ca sunt data nasterii
-    private final int numere_importante_cnp;
-
+    private final int numere_importante_cnp; // primul numar si ultimele 6 numere, restul ar fi irelevante pentru ca sunt data nasterii
     private String parola;
-    private ArrayList<Card> carduri;
+    private final ArrayList<Card> carduri;
 
     public String getEmail() {
         return email;
@@ -56,7 +53,7 @@ public class User implements Comparable<User> {
 
 
     public String save(){
-        return prenume + " " + nume + " " + email + " " + data_nasterii.getYear() + " " + data_nasterii.getMonthValue() + " " + data_nasterii.getDayOfMonth() + " " + numere_importante_cnp + " " + parola;
+        return prenume + "," + nume + "," + email + "," + data_nasterii.getYear() + "," + data_nasterii.getMonthValue() + "," + data_nasterii.getDayOfMonth() + "," + numere_importante_cnp + "," + parola;
     }
 
     public void adaugaCard(Card card){
@@ -81,6 +78,10 @@ public class User implements Comparable<User> {
 
     }
 
+    public ArrayList<Card> getCarduri(){
+        return carduri;
+    }
+
     public Cont getCont(String nume_cont_or_iban){
         for (Card i : carduri){
             ArrayList<Cont> temp_conturi = i.getConturi();
@@ -91,16 +92,22 @@ public class User implements Comparable<User> {
         return null;
     }
 
+    //Pentru gui_text
     public String infoCarduri(long number){
         StringBuilder s = new StringBuilder();
         if (number == 0L) {
-            for (Card i : carduri) s.append(i.toString()).append("\n");
+            for (Card i : carduri) s.append(i).append("\n");
         }
         else{
-            for (Card i : carduri) if (i.getNumber() == number) s.append(i.toString()).append("\n");
+            for (Card i : carduri) if (i.getNumber() == number) s.append(i).append("\n");
         }
         return s.toString();
 
+    }
+
+    //Pentru gui
+    public ArrayList<Card> infoCarduri(){
+        return carduri;
     }
 
     public int getRandomIntFromUser(int bound) {
