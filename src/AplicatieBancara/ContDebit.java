@@ -19,7 +19,7 @@ public class ContDebit extends Cont{
     }
 
     public int golDe(){
-        System.out.println("goldin: "+gol_din);
+//        System.out.println("goldin: "+gol_din);
         if (gol_din != null) return (int)DAYS.between(gol_din, LocalDate.now());
         else return 0;
     }

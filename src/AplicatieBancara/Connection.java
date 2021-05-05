@@ -52,7 +52,7 @@ public class Connection {
         File Dbase = new File("DataBase/Userbase.txt");
 
         Scanner downloader = new Scanner(Dbase);
-        downloader.useDelimiter("[,\\n]");
+        downloader.useDelimiter("[,\n\r]+");
         while (downloader.hasNext()) {
             //Creez lista de utilizatori
             String[] one_user_data = new String[8];
@@ -88,6 +88,13 @@ public class Connection {
     //Functie pentru a sterege un utilizator
     public void delete_user(User user){
         user_base.remove(user);
+    }
+
+    public void delete_user(User user, int nr_imp_cnp) throws Exception {
+        if(user.getNumere_importante_cnp() == nr_imp_cnp)
+            user_base.remove(user);
+        else
+            throw new Exception("CNP incorect!");
     }
 
     // Functie care salveaza din nou

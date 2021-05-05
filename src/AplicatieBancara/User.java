@@ -53,7 +53,7 @@ public class User implements Comparable<User> {
 
 
     public String save(){
-        return prenume + "," + nume + "," + email + "," + data_nasterii.getYear() + "," + data_nasterii.getMonthValue() + "," + data_nasterii.getDayOfMonth() + "," + numere_importante_cnp + "," + parola;
+        return prenume + "," + nume + "," + email + "," + data_nasterii.getYear() + "," + data_nasterii.getMonthValue() + "," + data_nasterii.getDayOfMonth() + "," + numere_importante_cnp + "," + parola + "";
     }
 
     public void adaugaCard(Card card){

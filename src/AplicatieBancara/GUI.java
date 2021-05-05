@@ -3,6 +3,8 @@ package AplicatieBancara;
 //WIP
 
 import javax.swing.*;
+import javax.swing.border.LineBorder;
+import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.FileNotFoundException;
@@ -36,6 +38,31 @@ public class GUI implements ActionListener {
 
     }
 
+    private JPanel makePanouCard(Card c){
+        JPanel panou_out = new JPanel();
+        panou_out.setLayout(new GridLayout(0,4));
+        for(Cont j : c.getConturi()){
+            JPanel panou_cont = new JPanel();
+            panou_cont.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black), "Contul " + j.getNume()));
+            panou_cont.setLayout(new GridLayout(2,2));
+            panou_cont.add(new JLabel("Iban: " + j.getIban()));
+
+            switch (j.getTip()){
+                case "DEBIT":
+                    panou_cont.add(new JLabel("    Gol de : " + ((ContDebit) j).golDe() + " zile"));
+                    panou_cont.add(new JLabel("Suma disponibila: " + j.getSuma_disponibila()));
+                    break;
+                case "CREDIT":
+                    panou_cont.add(Box.createGlue());
+                    panou_cont.add(new JLabel("Suma disponibila: " + j.getSuma_disponibila()));
+                    panou_cont.add(new JLabel("Datorie: " + ((ContCredit) j).getDatorie()));
+                    break;
+            }
+            panou_out.add(panou_cont);
+        }
+        return panou_out;
+    }
+
     private void mainMenu(){
         frame.getContentPane().removeAll();
         frame.setPreferredSize(new Dimension(800,1000));
@@ -53,6 +80,7 @@ public class GUI implements ActionListener {
         frame.pack();
         frame.setVisible(true);
     }
+
 
     private void mainUI(User logged_user){
 
@@ -97,10 +125,9 @@ public class GUI implements ActionListener {
             case 1:
                 JPanel panou_card = new JPanel();
                 panou_card.setLayout(new GridLayout(0,2));
-                panou_card.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black), "Cardul dumneavoasta:"));
+                panou_card.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black), "Cardul " + logged_user.getCarduri().get(0).getNumber() + ":"));
 
-
-
+                panou_card.add(makePanouCard(logged_user.getCarduri().get(0)));
 
                 panel.add(panou_card);
                 break;
@@ -125,25 +152,7 @@ public class GUI implements ActionListener {
 
                 for(Card i : logged_user.getCarduri()){
                     panouri_card_conturi.add(new JPanel());
-                    for(Cont j : i.getConturi()){
-                        JPanel panou_cont = new JPanel();
-                        panou_cont.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black), "Contul " + j.getNume()));
-                        panou_cont.setLayout(new GridLayout(2,2));
-                        panou_cont.add(new JLabel("Iban: " + j.getIban()));
-
-                        switch (j.getTip()){
-                            case "DEBIT":
-                                panou_cont.add(new JLabel("    Gol de : " + ((ContDebit) j).golDe() + " zile"));
-                                panou_cont.add(new JLabel("Suma disponibila: " + j.getSuma_disponibila()));
-                                break;
-                            case "CREDIT":
-                                panou_cont.add(Box.createGlue());
-                                panou_cont.add(new JLabel("Suma disponibila: " + j.getSuma_disponibila()));
-                                panou_cont.add(new JLabel("Datorie: " + ((ContCredit) j).getDatorie()));
-                                break;
-                        }
-                        panouri_card_conturi.get(panouri_card_conturi.size()-1).add(panou_cont);
-                    }
+                    panouri_card_conturi.get(panouri_card_conturi.size()-1).add(makePanouCard(i));
                 }
 
                 panou_carduri.add(panouri_card_conturi.get(0),BorderLayout.CENTER);
@@ -158,9 +167,43 @@ public class GUI implements ActionListener {
                 break;
         }
 
+        //Stergerea Contului
+
+        JPanel panou_sterge_cont_si_deconectare = new JPanel();
+        panou_sterge_cont_si_deconectare.setLayout(new GridLayout(0,3));
+        JButton sterge_cont = new JButton("Sterge-ti contul");
+
+
+
+        panou_sterge_cont_si_deconectare.add(sterge_cont);
+        panou_sterge_cont_si_deconectare.add(Box.createGlue());
+
+        sterge_cont.addActionListener(e -> {
+            if (panou_sterge_cont_si_deconectare.getComponent(1).getClass().toString().equals("class javax.swing.Box$Filler")) {
+                JFormattedTextField user_input_stergere_cont = new JFormattedTextField();
+                user_input_stergere_cont.setValue(0L);
+                user_input_stergere_cont.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black,5,true),"Daca sunte-ti sigur introduce-ti cnpul"));
+                panou_sterge_cont_si_deconectare.remove(1);
+                panou_sterge_cont_si_deconectare.add(user_input_stergere_cont,1);
+                panou_sterge_cont_si_deconectare.updateUI();
+            }
+            else {
+                try {
+                    con.delete_user(logged_user, con.prelucrare_cnp((long)((JFormattedTextField)panou_sterge_cont_si_deconectare.getComponent(1)).getValue()));
+                    mainMenu();
+                } catch (Exception exception) {
+                    ((JFormattedTextField)panou_sterge_cont_si_deconectare.getComponent(1)).setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black,5,true),exception.getMessage()));
+                }
+            }
+
+        });
+
         // Deconectare
+
         JButton deconectare = new JButton("Deconectare");
-        panel.add(deconectare);
+        panou_sterge_cont_si_deconectare.add(deconectare);
+
+        panel.add(panou_sterge_cont_si_deconectare);
 
         deconectare.addActionListener(e -> logIn());
 
@@ -388,6 +431,5 @@ public class GUI implements ActionListener {
         con.renew_users();
 
     }
-
 
 }
