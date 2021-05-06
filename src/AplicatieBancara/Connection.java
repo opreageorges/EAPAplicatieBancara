@@ -37,6 +37,10 @@ public class Connection {
         else if(pass1.length() < 8 ) throw new Exception("Parola nu poate fi mai mica de 8 caractere!");
     }
 
+    public void verifica_parola_veche( String old_pass, User logged_user) throws Exception {
+        if(!logged_user.getParola().equals(old_pass)) throw new Exception("Parola veche nu este corecta!");
+    }
+
     public boolean verifica_email(String mail) {
         for (User i : user_base) {
             if (i.getEmail().equals(mail))
@@ -83,6 +87,10 @@ public class Connection {
 
     public int prelucrare_cnp(long cnp) {
         return (int)(((cnp / (long) pow(10, 12)) * (long) pow(10, 6)) + (cnp % (long) (pow(10, 6))));
+    }
+
+    public void changeUserPass(User u, String newpass){
+        u.setParola(newpass);
     }
 
     //Functie pentru a sterege un utilizator

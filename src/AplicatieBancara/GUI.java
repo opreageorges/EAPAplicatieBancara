@@ -16,6 +16,7 @@ public class GUI implements ActionListener {
     private static Connection con;
     private final JFrame frame;
     private final ArrayList<JButton> buttons;
+    private final ImageIcon icon;
 
     private GUI(){
         frame = new JFrame("Aplicatie Bancara");
@@ -24,12 +25,11 @@ public class GUI implements ActionListener {
             @Override
             public void windowClosed(WindowEvent e) {
                 super.windowClosed(e);
-                System.out.println("test");
                 con.renew_users();
             }
         });
 
-        ImageIcon icon = new ImageIcon("Icon.png");
+        icon = new ImageIcon("Icon.png");
         frame.setIconImage(icon.getImage());
         buttons = new ArrayList<>(3);
         buttons.add(new JButton("Autentificare"));
@@ -38,9 +38,104 @@ public class GUI implements ActionListener {
 
     }
 
+    private void mainMenu(){
+        frame.getContentPane().removeAll();
+        frame.setPreferredSize(new Dimension(800,1000));
+        JPanel panel = new JPanel();
+        frame.add(panel, BorderLayout.CENTER);
+
+        panel.setBorder(BorderFactory.createEmptyBorder(200,200,200,200));
+        panel.setLayout(new GridLayout(0,1));
+
+        for(JButton i: buttons){
+            i.addActionListener(this);
+            panel.add(i);
+        }
+
+        frame.pack();
+        frame.setVisible(true);
+    }
+
+    // UI-ul unui utilizator logat si subprogramele aferente acestui UI
+
+    //Subprogram pentru schimbarea parolei
+    private void changePass(User loggeduser, boolean[] b){
+        if(!b[0]) {
+            b[0] = true;
+            JFrame changepassframe = new JFrame("Schimabre parola");
+            changepassframe.setIconImage(icon.getImage());
+
+            changepassframe.addWindowListener(new WindowAdapter() {
+                @Override
+                public void windowClosed(WindowEvent e) {
+                    super.windowClosed(e);
+                    b[0] = false;
+                }
+            });
+
+            changepassframe.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+            JPanel mainpanel = new JPanel();
+            mainpanel.setLayout(new GridLayout(4,2));
+
+            //Campurile de text din fereastra de schimbare a parolei
+            JTextField old_pass = new JPasswordField();
+            JTextField new_pass1 = new JPasswordField();
+            JTextField new_pass2 = new JPasswordField();
+            JLabel old_pass_wrong = new JLabel("");
+            JLabel new_pass_wrong = new JLabel("");
+
+            old_pass.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black,5,true),"Parola Veche"));
+            new_pass1.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black,5,true),"Noua parola"));
+            new_pass2.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black,5,true),"Reintroduceti noua parola"));
+
+            mainpanel.add(old_pass);
+            mainpanel.add(old_pass_wrong);
+            mainpanel.add(new_pass1);
+            mainpanel.add(new_pass_wrong);
+            mainpanel.add(new_pass2);
+            mainpanel.add(Box.createGlue());
+
+            //Butonul de a realiza schimbarea
+
+            JButton commitnewpass = new JButton("Schimab Parola");
+
+            commitnewpass.addActionListener(e -> {
+                int a = 0;
+                old_pass_wrong.setText("");
+                new_pass_wrong.setText("");
+                try {
+                    con.verifica_parola_veche(old_pass.getText(), loggeduser);
+                    a+=1;
+                } catch (Exception exception) {
+                    old_pass_wrong.setText(exception.getMessage());
+                }
+                try {
+                    con.verifica_parola(new_pass1.getText(),new_pass2.getText());
+                    a+=1;
+                } catch (Exception exception) {
+                    new_pass_wrong.setText(exception.getMessage());
+                }
+                if(a==2) {
+                    con.changeUserPass(loggeduser, new_pass1.getText());
+                    old_pass.setText("");
+                    new_pass1.setText("");
+                    new_pass2.setText("");
+                }
+            });
+
+            mainpanel.add(commitnewpass);
+
+            changepassframe.add(mainpanel);
+            changepassframe.pack();
+            changepassframe.setVisible(true);
+        }
+    }
+
+    //Subprogram pentru crearea de panouri pentru carduri
     private JPanel makePanouCard(Card c){
         JPanel panou_out = new JPanel();
-        panou_out.setLayout(new GridLayout(0,4));
+        panou_out.setLayout(new GridLayout(0,3));
         for(Cont j : c.getConturi()){
             JPanel panou_cont = new JPanel();
             panou_cont.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black), "Contul " + j.getNume()));
@@ -63,26 +158,9 @@ public class GUI implements ActionListener {
         return panou_out;
     }
 
-    private void mainMenu(){
-        frame.getContentPane().removeAll();
-        frame.setPreferredSize(new Dimension(800,1000));
-        JPanel panel = new JPanel();
-        frame.add(panel, BorderLayout.CENTER);
-
-        panel.setBorder(BorderFactory.createEmptyBorder(200,200,200,200));
-        panel.setLayout(new GridLayout(0,1));
-
-        for(JButton i: buttons){
-            i.addActionListener(this);
-            panel.add(i);
-        }
-
-        frame.pack();
-        frame.setVisible(true);
-    }
-
-
     private void mainUI(User logged_user){
+        // Pentru a nu deschide o infinitate de ferestre
+        boolean[] alreadydoingstuff = new boolean[1];
 
         frame.getContentPane().removeAll();
         frame.setLayout(new GridLayout(0,1));
@@ -98,7 +176,7 @@ public class GUI implements ActionListener {
         carduri_user = logged_user.infoCarduri();
 
         //// TESTING! POSIBIL BOOOM
-        for( int i = 0; i <3; i++ ) logged_user.adaugaCard(new Card(logged_user));
+        for( int i = 0; i <1; i++ ) logged_user.adaugaCard(new Card(logged_user));
         for (Card i : logged_user.getCarduri()){
             i.deschideCont("DEBIT", "Testing DEBIT");
             i.deschideCont("CREDIT", "Testing CREDIT");
@@ -116,6 +194,8 @@ public class GUI implements ActionListener {
 
         /////
 
+
+        // Panoul de carduri
         switch (carduri_user.size()) {
             case 0:
                 JLabel fara_carduri = new JLabel("Nu aveti inca un card la banca noasta");
@@ -124,7 +204,7 @@ public class GUI implements ActionListener {
                 break;
             case 1:
                 JPanel panou_card = new JPanel();
-                panou_card.setLayout(new GridLayout(0,2));
+                panou_card.setLayout(new GridLayout(0,1));
                 panou_card.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black), "Cardul " + logged_user.getCarduri().get(0).getNumber() + ":"));
 
                 panou_card.add(makePanouCard(logged_user.getCarduri().get(0)));
@@ -167,13 +247,21 @@ public class GUI implements ActionListener {
                 break;
         }
 
+        //Schimbare parola
+        JPanel panou_parola = new JPanel();
+        panou_parola.setLayout(new GridLayout(0,3));
+        JButton schimba_parola = new JButton("Schimba parola");
+
+        schimba_parola.addActionListener(e -> changePass(logged_user, alreadydoingstuff));
+
+        panou_parola.add(schimba_parola);
+        panel.add(panou_parola);
+
         //Stergerea Contului
 
         JPanel panou_sterge_cont_si_deconectare = new JPanel();
         panou_sterge_cont_si_deconectare.setLayout(new GridLayout(0,3));
         JButton sterge_cont = new JButton("Sterge-ti contul");
-
-
 
         panou_sterge_cont_si_deconectare.add(sterge_cont);
         panou_sterge_cont_si_deconectare.add(Box.createGlue());
@@ -427,7 +515,8 @@ public class GUI implements ActionListener {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-        gui.mainMenu();
+        //gui.mainMenu();
+        gui.mainUI(con.log_in_account("1","12345"));
         con.renew_users();
 
     }
