@@ -67,7 +67,7 @@ public class User implements Comparable<User> {
     public void deschideCont(long number, String tip, String nume){
         for ( Card i : carduri){
             if (i.getNumber() == number){
-                i.deschideCont(nume.toUpperCase(), tip);
+                i.deschideCont(tip, nume.toUpperCase());
                 break;
             }
         }

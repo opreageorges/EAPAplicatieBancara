@@ -38,7 +38,7 @@ public class Connection {
     }
 
     public void verifica_parola_veche( String old_pass, User logged_user) throws Exception {
-        if(!logged_user.getParola().equals(old_pass)) throw new Exception("Parola veche nu este corecta!");
+        if(!logged_user.getParola().equals(old_pass)) throw new Exception("Parola nu este corecta!");
     }
 
     public boolean verifica_email(String mail) {

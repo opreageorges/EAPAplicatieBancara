@@ -27,6 +27,7 @@ public class Card {
         number = generateNumber();
 
         conturi = new ArrayList<>();
+
     }
 
     private long generateNumber() {

@@ -3,14 +3,11 @@ package AplicatieBancara;
 //WIP
 
 import javax.swing.*;
-import javax.swing.border.LineBorder;
-import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.FileNotFoundException;
 import java.time.LocalDate;
 import java.util.ArrayList;
-
 
 public class GUI implements ActionListener {
     private static Connection con;
@@ -58,22 +55,30 @@ public class GUI implements ActionListener {
 
     // UI-ul unui utilizator logat si subprogramele aferente acestui UI
 
+    // Make popup
+
+    private JFrame makePpopup(String titlu ,boolean[] b){
+        JFrame popup = new JFrame(titlu);
+        popup.setIconImage(icon.getImage());
+
+        popup.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosed(WindowEvent e) {
+                super.windowClosed(e);
+                b[0] = false;
+            }
+        });
+
+        popup.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+        return popup;
+    }
+
     //Subprogram pentru schimbarea parolei
     private void changePass(User loggeduser, boolean[] b){
         if(!b[0]) {
             b[0] = true;
-            JFrame changepassframe = new JFrame("Schimabre parola");
-            changepassframe.setIconImage(icon.getImage());
-
-            changepassframe.addWindowListener(new WindowAdapter() {
-                @Override
-                public void windowClosed(WindowEvent e) {
-                    super.windowClosed(e);
-                    b[0] = false;
-                }
-            });
-
-            changepassframe.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            JFrame changepassframe = makePpopup("Schimabre parola", b);
 
             JPanel mainpanel = new JPanel();
             mainpanel.setLayout(new GridLayout(4,2));
@@ -132,7 +137,42 @@ public class GUI implements ActionListener {
         }
     }
 
+    //Subprogram pentru a evita o situatie neplacute
+    private void sigurStergeCard(User logged_user, boolean[] b, long card_number){
+        if(!b[0]) {
+            b[0] = true;
+            JFrame sigurstergeframe = makePpopup("Stergerea cardului", b);
+
+            JPanel mainpanel = new JPanel();
+            mainpanel.setLayout(new GridLayout(3, 1));
+
+            JLabel avertisment = new JLabel("Daca alegeti sa stergeti acest card toate cunturile si toti banii de pe acestea o sa fie pierduti!\n Daca sunteti sigur introduceti parola in casuta de mai jos, daca nu inchideti fereastra");
+            JTextField pass_field = new JTextField();
+
+            JButton confirmation_button = new JButton("Confirm");
+
+            confirmation_button.addActionListener(e -> {
+                try {
+                    con.verifica_parola_veche(pass_field.getText(), logged_user);
+                    sigurstergeframe.dispose();
+                    logged_user.stergeCard(card_number);
+                    mainUI(logged_user);
+                } catch (Exception exception) {
+                    avertisment.setText(exception.getMessage());
+                }
+            } );
+
+            mainpanel.add(avertisment);
+            mainpanel.add(pass_field);
+            mainpanel.add(confirmation_button);
+
+            sigurstergeframe.add(mainpanel);
+            sigurstergeframe.pack();
+            sigurstergeframe.setVisible(true);
+        }
+    }
     //Subprogram pentru crearea de panouri pentru carduri
+
     private JPanel makePanouCard(Card c){
         JPanel panou_out = new JPanel();
         panou_out.setLayout(new GridLayout(0,3));
@@ -171,29 +211,32 @@ public class GUI implements ActionListener {
         panel.setBorder(BorderFactory.createEmptyBorder(50,50,50,50));
         panel.setLayout(new GridLayout(0,1,50,50));
 
+        // Interactiune cu cardurile
+        JPanel panou_carduri_si_parola = new JPanel();
+        panou_carduri_si_parola.setLayout(new GridLayout(0,3));
+
+        JButton creare_card = new JButton("Creaza un nou card");
+        JButton sterge_card = new JButton("Sterge card");
+
+
+        panou_carduri_si_parola.add(creare_card);
+        panou_carduri_si_parola.add(sterge_card);
+
+        creare_card.addActionListener(e -> {
+            logged_user.adaugaCard(new Card(logged_user));
+
+            for (int i=0; i<3;i++) {
+                logged_user.deschideCont(logged_user.getCarduri().get(logged_user.getCarduri().size()-1).getNumber(),"CREDIT","TEST CREDIT " + i);
+                logged_user.deschideCont(logged_user.getCarduri().get(logged_user.getCarduri().size()-1).getNumber(),"DEBIT","TEST DEBIT " + i);
+            }
+
+            mainUI(logged_user);
+        });
+
+
         // Info Carduri
         ArrayList<Card> carduri_user;
         carduri_user = logged_user.infoCarduri();
-
-        //// TESTING! POSIBIL BOOOM
-        for( int i = 0; i <1; i++ ) logged_user.adaugaCard(new Card(logged_user));
-        for (Card i : logged_user.getCarduri()){
-            i.deschideCont("DEBIT", "Testing DEBIT");
-            i.deschideCont("CREDIT", "Testing CREDIT");
-            i.deschideCont("DEBIT", "Testing DEBIT");
-            i.deschideCont("CREDIT", "Testing CREDIT");
-            i.deschideCont("DEBIT", "Testing DEBIT");
-            i.deschideCont("CREDIT", "Testing CREDIT");
-            i.deschideCont("DEBIT", "Testing DEBIT");
-            i.deschideCont("CREDIT", "Testing CREDIT");
-            i.deschideCont("DEBIT", "Testing DEBIT");
-            i.deschideCont("CREDIT", "Testing CREDIT");
-            i.deschideCont("DEBIT", "Testing DEBIT");
-            i.deschideCont("CREDIT", "Testing CREDIT");
-        }
-
-        /////
-
 
         // Panoul de carduri
         switch (carduri_user.size()) {
@@ -203,16 +246,23 @@ public class GUI implements ActionListener {
                 panel.add(fara_carduri);
                 break;
             case 1:
+                //Inapoi la partea de panou
+
                 JPanel panou_card = new JPanel();
                 panou_card.setLayout(new GridLayout(0,1));
                 panou_card.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black), "Cardul " + logged_user.getCarduri().get(0).getNumber() + ":"));
 
                 panou_card.add(makePanouCard(logged_user.getCarduri().get(0)));
 
+                // Actiunea de stergere a cardului
+                sterge_card.addActionListener(e -> sigurStergeCard(logged_user, alreadydoingstuff, logged_user.getCarduri().get(0).getNumber()));
+
                 panel.add(panou_card);
                 break;
 
             default:
+
+                //Partea de panou
                 JPanel panou_carduri = new JPanel();
                 panou_carduri.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black), "Cardurile dumneavoasta:"));
                 panou_carduri.setLayout(new BorderLayout());
@@ -243,19 +293,23 @@ public class GUI implements ActionListener {
                     panou_carduri.updateUI();
                 });
 
+                // Actiunea de stergere a cardului
+                sterge_card.addActionListener(e -> {
+                            if(select_card.getSelectedItem() != null) sigurStergeCard(logged_user, alreadydoingstuff,  (long)select_card.getSelectedItem());
+                });
+
                 panel.add(panou_carduri);
                 break;
         }
 
+
         //Schimbare parola
-        JPanel panou_parola = new JPanel();
-        panou_parola.setLayout(new GridLayout(0,3));
         JButton schimba_parola = new JButton("Schimba parola");
 
         schimba_parola.addActionListener(e -> changePass(logged_user, alreadydoingstuff));
 
-        panou_parola.add(schimba_parola);
-        panel.add(panou_parola);
+        panou_carduri_si_parola.add(schimba_parola);
+        panel.add(panou_carduri_si_parola);
 
         //Stergerea Contului
 
