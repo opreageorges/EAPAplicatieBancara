@@ -19,7 +19,6 @@ public class ContDebit extends Cont{
     }
 
     public int golDe(){
-//        System.out.println("goldin: "+gol_din);
         if (gol_din != null) return (int)DAYS.between(gol_din, LocalDate.now());
         else return 0;
     }
@@ -30,12 +29,25 @@ public class ContDebit extends Cont{
     }
 
     @Override
-    public void transferIntrePersoane(String iban_beneficiar, float suma_transferata) {
-
+    public void transferIntrePersoane(Cont contul_beneficiarului, float suma_transferata) throws Exception {
+        if(suma_transferata < suma_disponibila.floatValue()){
+            contul_beneficiarului.addMoney(suma_transferata);
+            suma_disponibila = suma_disponibila.subtract(new BigDecimal(suma_transferata));
+        }
+        else throw new Exception("Suma este mai mare decat suma din cont!");
     }
 
     @Override
-    public void plataFirma(String nume_firma, float suma_transferata) {
+    public void plataFirma(String nume_firma, float suma_transferata) throws Exception{
+        BigDecimal suma_transferata_big = new BigDecimal(suma_transferata);
+        if(suma_disponibila.compareTo(suma_transferata_big) >= 0){
+            suma_disponibila = suma_disponibila.subtract(suma_transferata_big);
+        }
+        else throw new Exception("Suma este mai mare decat suma din cont!");
+    }
 
+    @Override
+    public String toString() {
+        return "Contul " + nume + "    Suma disponibila este: " + suma_disponibila + "  Iban= " + iban + "  Gol de: " + golDe();
     }
 }

@@ -49,6 +49,14 @@ public class Connection {
         return false;
     }
 
+    public Cont get_user_bnk_cont(String mail, String iban){
+        for(User i : user_base){
+            if(i.getEmail().equals(mail))
+                return i.getCont(iban);
+        }
+        return null;
+    }
+
     //Functie ce incarca utilizatorii din fisier
     private static File load() throws FileNotFoundException {
 
@@ -71,13 +79,17 @@ public class Connection {
 
         File firme_file = new File("DataBase/FirmePartenere.txt");
         Scanner downParteneri = new Scanner(firme_file);
-
+        downParteneri.useDelimiter(",");
         while (downParteneri.hasNext()) {
             firme_partenere.add(downParteneri.next());
         }
         downParteneri.close();
 
         return Dbase;
+    }
+
+    public ArrayList<String> getFirme_partenere() {
+        return firme_partenere;
     }
 
     //Functie ce salveaza un utilizator nou in fisier

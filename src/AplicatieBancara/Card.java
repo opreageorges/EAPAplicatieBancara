@@ -47,7 +47,7 @@ public class Card {
         long temp2 = 0L;
         while (temp2 < 10000000L) temp2 = proprietar.getRandomLongFromUser();
         iban = iban + "BNK" + temp2;
-
+        System.out.println(iban);
         return iban;
     }
 

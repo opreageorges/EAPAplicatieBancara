@@ -105,11 +105,6 @@ public class User implements Comparable<User> {
 
     }
 
-    //Pentru gui
-    public ArrayList<Card> infoCarduri(){
-        return carduri;
-    }
-
     public int getRandomIntFromUser(int bound) {
         return generator.nextInt(bound);
     }

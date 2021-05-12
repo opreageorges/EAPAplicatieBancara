@@ -49,7 +49,6 @@ public abstract class Cont implements Transfer{
     public String toString() {
         return "\n   Contul " + nume +
                 "\n    Suma disponibila este: " + suma_disponibila +
-                "\n    Iban='" + iban +
-                "\n    BIC='" + bic;
+                "\n    Iban= " + iban;
     }
 }

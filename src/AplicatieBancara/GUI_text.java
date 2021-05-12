@@ -137,7 +137,9 @@ public class GUI_text {
 
                 System.out.println("Introduceti suma pe care doriti sa o transferati");
                 float suma_transfer = input.nextFloat();
-                cont.transferIntrePersoane(iban, suma_transfer);
+                try {
+                    cont.transferIntrePersoane(cont, suma_transfer);
+                } catch (Exception ignored) {}
 
                 break;
             case 2:
@@ -147,7 +149,9 @@ public class GUI_text {
                 System.out.println("Introduceti suma pe care doriti sa o tranferati");
                 float suma_plata = input.nextFloat();
 
-                cont.plataFirma(nume_firma, suma_plata);
+                try {
+                    cont.plataFirma(nume_firma, suma_plata);
+                } catch (Exception ignored) { }
                 break;
 
             default:
