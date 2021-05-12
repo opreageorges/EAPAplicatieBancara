@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -13,23 +14,82 @@ import java.util.TreeSet;
 import static java.lang.Integer.parseInt;
 import static java.lang.Math.pow;
 
-public class Connection {
-    private static Connection con = null;
+public class LocaleInteraction {
+    private static LocaleInteraction con = null;
     private static File data_base;
     private static TreeSet<User> user_base;
     private static ArrayList<String> firme_partenere;
 
-    private Connection() {
+    private LocaleInteraction() {
         user_base = new TreeSet<>();
         firme_partenere = new ArrayList<>();
+
+
     }
 
     public LocalDate get_data_from_cnp(long cnp) throws Exception {
         LocalDate out = LocalDate.now();
         if (cnp < pow(10, 12) || cnp > 99*pow(10,11)) throw new Exception("Numarul de cifre al cnpului este gresit");
         int temp = (int)(cnp / (long)pow(10,6));
-        System.out.println(temp);
+        //System.out.println(temp);
         return out;
+    }
+
+    public void logthis(String input, String variabila){
+        try {
+            FileWriter logger = new FileWriter("DataBase/Log", true);
+            switch (input) {
+                case "MAINMENU":
+                    logger.append("Utilizatorul a deschis meniul principal ").append(String.valueOf(LocalDateTime.now())).append("\n");
+                    break;
+                case "TRANZACTIE":
+                    logger.append("Utilizatorul ").append(variabila).append(" a deschis meniul de tranzctii ").append(String.valueOf(LocalDateTime.now())).append("\n");
+                    break;
+                case "TRANOM":
+                    logger.append("Utilizatorul ").append(variabila).append(" a realizat o tranzactie cu un alt client ").append(String.valueOf(LocalDateTime.now())).append("\n");
+                    break;
+                case "TRANFIRMA":
+                    logger.append("Utilizatorul ").append(variabila).append(" a realizat o tranzactie cu o firma partenera ").append(String.valueOf(LocalDateTime.now())).append("\n");
+                    break;
+                case "CARDINTER":
+                    logger.append("Utilizatorul ").append(variabila).append(" a deschis meniu de interactiune cu un card ").append(String.valueOf(LocalDateTime.now())).append("\n");
+                    break;
+                case "DESCCONT":
+                    logger.append("Utilizatorul ").append(variabila).append(" a deschis un cont bancar ").append(String.valueOf(LocalDateTime.now())).append("\n");
+                    break;
+                case "ICHCONT":
+                    logger.append("Utilizatorul ").append(variabila).append(" a inchis un cont bancar ").append(String.valueOf(LocalDateTime.now())).append("\n");
+                    break;
+                case "ALMCONT":
+                    logger.append("Utilizatorul ").append(variabila).append(" a alimentat un cont bancar ").append(String.valueOf(LocalDateTime.now())).append("\n");
+                    break;
+                case "ICHCARD":
+                    logger.append("Utilizatorul ").append(variabila).append(" a inchis un card ").append(String.valueOf(LocalDateTime.now())).append("\n");
+                    break;
+                case "LOGIN":
+                    logger.append("Utilizatorul a intrat in meniul de logare ").append(String.valueOf(LocalDateTime.now())).append("\n");
+                    break;
+                case "REGISTER":
+                    logger.append("Utilizatorul a intrat in meniul de inregistrare ").append(String.valueOf(LocalDateTime.now())).append("\n");
+                    break;
+                case "LOGGED":
+                    logger.append("Utilizatorul ").append(variabila).append(" s-a logat ").append(String.valueOf(LocalDateTime.now())).append("\n");
+                    break;
+                case "CHDPASS":
+                    logger.append("Utilizatorul ").append(variabila).append(" si-a schimbat parola ").append(String.valueOf(LocalDateTime.now())).append("\n");
+                    break;
+                case "PASS":
+                    logger.append("Utilizatorul ").append(variabila).append(" a intrat in meniu de schimbare a parolei ").append(String.valueOf(LocalDateTime.now())).append("\n");
+                    break;
+                default:
+                    logger.append("Utilizatorul a facut ceva nedefinit ").append(String.valueOf(LocalDateTime.now())).append("\n");
+                    break;
+            }
+            logger.close();
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     public void verifica_parola(String pass1, String pass2) throws Exception {
@@ -171,12 +231,12 @@ public class Connection {
     }
 
     // Simulare de conexiune
-    public static Connection connect() throws FileNotFoundException {
+    public static LocaleInteraction connect() throws FileNotFoundException {
 
         if (con == null) {
 
             //Creez obiectul care imita o conexiune la un server
-            con = new Connection();
+            con = new LocaleInteraction();
 
             //Pronesc functia de incarcare a datelor
             data_base = load();

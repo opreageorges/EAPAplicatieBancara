@@ -9,7 +9,7 @@ GUI_text - Clasa legacy
 
 User - Clasa care stocheaza informatii despre utilizatori
 
-Connection - Clasa care se ocupa cu interactiunile cu serverul
+LocaleInteraction - Clasa utilitara, care se ocupa si de interactiunile cu fisierele locale
 
 Card - Clasa care se ocupa cu informatiile/interactiunile cu un card
 

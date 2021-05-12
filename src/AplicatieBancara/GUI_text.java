@@ -11,7 +11,7 @@ import static java.lang.Math.pow;
 import static javax.xml.bind.DatatypeConverter.parseInt;
 
 public class GUI_text {
-    private static Connection con;
+    private static LocaleInteraction con;
 
     //Functie pentru a salva doar numere importante
     private static long prelucrare_cnp(long cnp) {
@@ -298,7 +298,7 @@ public class GUI_text {
     public static void main(String[] args) {
 
         try {
-            con = Connection.connect();
+            con = LocaleInteraction.connect();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }

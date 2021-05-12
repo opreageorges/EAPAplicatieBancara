@@ -1,7 +1,5 @@
 package AplicatieBancara;
 
-//WIP
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -10,7 +8,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 
 public class GUI implements ActionListener {
-    private static Connection con;
+    private static LocaleInteraction con;
     private final JFrame frame;
     private final ArrayList<JButton> buttons;
     private final ImageIcon icon;
@@ -36,6 +34,7 @@ public class GUI implements ActionListener {
     }
 
     private void mainMenu(){
+        con.logthis("MAINMENU", "");
         frame.getContentPane().removeAll();
         frame.setPreferredSize(new Dimension(800,1000));
         JPanel panel = new JPanel();
@@ -58,6 +57,7 @@ public class GUI implements ActionListener {
     private void tranzactii(User logged_user, Card interaction_card, boolean[] b){
         if(!b[0]) {
             b[0] = true;
+            con.logthis("TRANZACTIE", logged_user.getEmail());
             JFrame tranzactii_frame = makePpopup("Realizeaza tranzactii", b);
             tranzactii_frame.setPreferredSize(new Dimension(1000,300));
             tranzactii_frame.setLayout(new GridLayout(0,1));
@@ -99,6 +99,7 @@ public class GUI implements ActionListener {
                             suma_transferata.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black), "Suma transferata"));
                             cardInteraction(logged_user, interaction_card, b);
                             tranzactii_panel.updateUI();
+                            con.logthis("TRANOM", logged_user.getEmail());
                         } catch (Exception exception) {
                             suma_transferata.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black), exception.getMessage()));
                         }
@@ -137,6 +138,7 @@ public class GUI implements ActionListener {
                     suma_transferata_firma.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black), "Suma transferata"));
                     cardInteraction(logged_user, interaction_card, b);
                     tranzactii_panel.updateUI();
+                    con.logthis("TRANFIRMA", logged_user.getEmail());
                 } catch (Exception exception) {
                     suma_transferata_firma.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black), exception.getMessage()));
                 }
@@ -178,6 +180,8 @@ public class GUI implements ActionListener {
     private void cardInteraction(User logged_user, Card interaction_card, boolean[] alreadydoingstuff){
         frame.getContentPane().removeAll();
 
+        con.logthis("CARDINTER", logged_user.getEmail());
+
         JPanel panel = new JPanel();
         panel.setLayout(new GridLayout(0,1));
 
@@ -216,6 +220,8 @@ public class GUI implements ActionListener {
                     logged_user.deschideCont(interaction_card.getNumber(), ((JComboBox) panou_inter_cont.getComponent(2)).getSelectedItem().toString(), ((JTextField) panou_inter_cont.getComponent(1)).getText());
 
                     updatePanouInterCont(interaction_card, panel, panou_inter_cont);
+
+                    con.logthis("DESCCONT", logged_user.getEmail());
                 }
                 else
                     ((JTextField) panou_inter_cont.getComponent(1)).setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black), "Numele trebuie sa contina caractere!"));
@@ -248,6 +254,8 @@ public class GUI implements ActionListener {
                     ((JTextField)panou_inter_cont.getComponent(4)).setText("");
 
                     updatePanouInterCont(interaction_card, panel, panou_inter_cont);
+
+                    con.logthis("ICHCONT", logged_user.getEmail());
                 }
                 else
                     ((JTextField) panou_inter_cont.getComponent(5)).setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black), "Parola este gresita!"));
@@ -289,6 +297,7 @@ public class GUI implements ActionListener {
                 logged_user.getCont((String)((JComboBox)panou_inter_cont.getComponent(7)).getSelectedItem()).addMoney(suma);
 
                 updatePanouInterCont(interaction_card, panel, panou_inter_cont);
+                con.logthis("ALMCONT", logged_user.getEmail());
             }
         });
 
@@ -307,7 +316,10 @@ public class GUI implements ActionListener {
 
         JButton sterge_cardul = new JButton("Sterge cardul");
 
-        sterge_cardul.addActionListener(e -> sigurStergeCard(logged_user, alreadydoingstuff, interaction_card.getNumber()));
+        sterge_cardul.addActionListener(e -> {
+            con.logthis("ICHCARD", logged_user.getEmail());
+            sigurStergeCard(logged_user, alreadydoingstuff, interaction_card.getNumber());
+        });
 
         panel.add(sterge_cardul);
 
@@ -378,6 +390,8 @@ public class GUI implements ActionListener {
             b[0] = true;
             JFrame changepassframe = makePpopup("Schimabre parola", b);
 
+            con.logthis("PASS", loggeduser.getEmail());
+
             JPanel mainpanel = new JPanel();
             mainpanel.setLayout(new GridLayout(4,2));
 
@@ -424,6 +438,7 @@ public class GUI implements ActionListener {
                     old_pass.setText("");
                     new_pass1.setText("");
                     new_pass2.setText("");
+                    con.logthis("CHDPASS", loggeduser.getEmail());
                 }
             });
 
@@ -479,6 +494,8 @@ public class GUI implements ActionListener {
         frame.getContentPane().removeAll();
         frame.setLayout(new GridLayout(0,1));
         frame.setPreferredSize(new Dimension(1000,600));
+
+        con.logthis("LOGGED", logged_user.getEmail());
 
         JPanel panel = new JPanel();
         frame.add(panel);
@@ -632,6 +649,8 @@ public class GUI implements ActionListener {
 
         frame.add(panel);
 
+        con.logthis("LOGIN", "");
+
         panel.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
         panel.setLayout(new GridLayout(3,3,10,10));
 
@@ -702,6 +721,8 @@ public class GUI implements ActionListener {
         panel.setLayout(new GridLayout(0,3,10,10));
 
         frame.add(panel);
+
+        con.logthis("REGISTER", "");
 
         // Nume Prenume Email
 
@@ -831,7 +852,7 @@ public class GUI implements ActionListener {
         GUI gui = new GUI();
 
         try {
-            con = Connection.connect();
+            con = LocaleInteraction.connect();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
