@@ -487,6 +487,7 @@ public class GUI implements ActionListener {
         }
     }
 
+
     private void mainUI(User logged_user){
         // Pentru a nu deschide o infinitate de ferestre
         boolean[] alreadydoingstuff = new boolean[1];
@@ -638,6 +639,7 @@ public class GUI implements ActionListener {
         frame.setVisible(true);
     }
 
+    // UI-ul principal
     private void logIn(){
         frame.getContentPane().removeAll();
 
@@ -856,8 +858,7 @@ public class GUI implements ActionListener {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-        //gui.mainMenu();
-        gui.mainUI(con.log_in_account("1","12345"));
+        gui.mainMenu();
         con.renew_users();
 
     }

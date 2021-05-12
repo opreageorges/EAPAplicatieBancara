@@ -23,15 +23,24 @@ public class LocaleInteraction {
     private LocaleInteraction() {
         user_base = new TreeSet<>();
         firme_partenere = new ArrayList<>();
-
-
     }
 
     public LocalDate get_data_from_cnp(long cnp) throws Exception {
-        LocalDate out = LocalDate.now();
+        LocalDate out;
         if (cnp < pow(10, 12) || cnp > 99*pow(10,11)) throw new Exception("Numarul de cifre al cnpului este gresit");
         int temp = (int)(cnp / (long)pow(10,6));
-        //System.out.println(temp);
+        int zi,luna,an;
+        an = temp % 100;
+        temp = temp/100;
+        if(an < 50) an += 2000;
+        else an += 1900;
+
+        luna = temp % 100;
+        temp = temp/100;
+
+        zi = temp % 100;
+
+        out = LocalDate.of(an,luna,zi);
         return out;
     }
 
