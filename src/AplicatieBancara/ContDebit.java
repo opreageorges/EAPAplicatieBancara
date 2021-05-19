@@ -7,14 +7,14 @@ import static java.time.temporal.ChronoUnit.DAYS;
 
 public class ContDebit extends Cont{
     private final int maxim_de_zile_gol = 90;
-    private LocalDate gol_din;
+    private final LocalDate gol_din;
 
-    public ContDebit(String nume, String iban, Card proprietar) {
+    ContDebit(String nume, String iban, Card proprietar) {
         super(nume, iban, proprietar);
         this.gol_din = LocalDate.now();
     }
 
-    public ContDebit(String nume,String iban, BigDecimal suma_disponibila, Card proprietar, LocalDate gol_din) {
+    ContDebit(String nume,String iban, BigDecimal suma_disponibila, Card proprietar, LocalDate gol_din) {
         super(nume, iban, suma_disponibila, proprietar);
         this.gol_din = gol_din;
     }
@@ -22,6 +22,10 @@ public class ContDebit extends Cont{
     public int golDe(){
         if (gol_din != null) return (int)DAYS.between(gol_din, LocalDate.now());
         else return 0;
+    }
+
+    public int getMaxim_de_zile_gol() {
+        return maxim_de_zile_gol;
     }
 
     @Override

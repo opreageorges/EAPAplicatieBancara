@@ -17,6 +17,10 @@ public class Card {
         return conturi;
     }
 
+    public void setConturi(ArrayList<Cont> conturi) {
+        this.conturi = conturi;
+    }
+
     public Card(User proprietar) {
         this.proprietar = proprietar;
 
@@ -28,6 +32,12 @@ public class Card {
 
         conturi = new ArrayList<>();
 
+    }
+
+    public Card(User proprietar, long number, int cvv_cvc) {
+        this.proprietar = proprietar;
+        this.number = number;
+        this.cvv_cvc = cvv_cvc;
     }
 
     private long generateNumber() {
@@ -47,7 +57,6 @@ public class Card {
         long temp2 = 0L;
         while (temp2 < 10000000L) temp2 = proprietar.getRandomLongFromUser();
         iban = iban + "BNK" + temp2;
-        System.out.println(iban);
         return iban;
     }
 
@@ -69,6 +78,10 @@ public class Card {
 
     public String makeInsert(){
         return "`card` VALUES(" + this.number + ", " + this.cvv_cvc + ", " + this.proprietar.getNumere_importante_cnp() + ");";
+    }
+
+    public String makeDelete(){
+        return "card where numar = " + this.number + ";";
     }
 
     @Override

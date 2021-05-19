@@ -489,6 +489,9 @@ public class GUI implements ActionListener {
 
 
     private void mainUI(User logged_user){
+
+        logged_user.setHasLoggedIn();
+
         // Pentru a nu deschide o infinitate de ferestre
         boolean[] alreadydoingstuff = new boolean[1];
 

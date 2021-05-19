@@ -3,20 +3,16 @@ package AplicatieBancara;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.Month;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.TreeSet;
 
-import static java.lang.Integer.parseInt;
 import static java.lang.Math.pow;
 
 public class LocaleInteraction {
     private static LocaleInteraction con = null;
-    private static File data_base;
     private static TreeSet<User> user_base;
     private static ArrayList<String> firme_partenere;
     private static DataBaseInteraction dbcon;
@@ -25,7 +21,7 @@ public class LocaleInteraction {
     private static final String url = "jdbc:mysql://localhost:3306/aplicatiebancara";
     private static final String user = "root";
     private static final String password = "12345678mysql";
-    // Seteaza ca true ca sa creeze baza de date
+    // Seteaza ca true pentru a crea baza de date
     private static final boolean doStartUp = false;
     //////////////
 
@@ -136,25 +132,8 @@ public class LocaleInteraction {
     }
 
     //Functie ce incarca utilizatorii din fisier
-    private static File load() throws FileNotFoundException {
 
-        //Deschid baza de clienti si creez obiectul care citeste din fisier
-        File Dbase = new File("DataBase/Userbase.txt");
-
-        Scanner downloader = new Scanner(Dbase);
-        downloader.useDelimiter("[,\n\r]+");
-        while (downloader.hasNext()) {
-            //Creez lista de utilizatori
-            String[] one_user_data = new String[8];
-            for (int i = 0; i < 8; i++) {
-                one_user_data[i] = downloader.next();
-            }
-            User one_user = new User(one_user_data[0], one_user_data[1], one_user_data[2], LocalDate.of(parseInt(one_user_data[3]), Month.of(parseInt(one_user_data[4])), parseInt(one_user_data[5])), parseInt(one_user_data[6]), one_user_data[7]);
-
-            user_base.add(one_user);
-        }
-        downloader.close();
-
+    private static void load() throws FileNotFoundException {
         File firme_file = new File("DataBase/FirmePartenere.txt");
         Scanner downParteneri = new Scanner(firme_file);
         downParteneri.useDelimiter(",");
@@ -163,7 +142,13 @@ public class LocaleInteraction {
         }
         downParteneri.close();
 
-        return Dbase;
+        user_base = dbcon.getUsersFromDB();
+        for(User u : user_base){
+            u.setCarduri(dbcon.getUserCardsFromDB(u));
+            for (Card c : u.getCarduri()){
+                c.setConturi(dbcon.getCardContsFromDB(c));
+            }
+        }
     }
 
     public ArrayList<String> getFirme_partenere() {
@@ -173,6 +158,7 @@ public class LocaleInteraction {
     //Functie ce salveaza un utilizator nou in fisier
     public void save_user(User user){
         user_base.add(user);
+        dbcon.insertElement(user.makeInsert());
     }
 
     public int prelucrare_cnp(long cnp) {
@@ -184,50 +170,36 @@ public class LocaleInteraction {
     }
 
     //Functie pentru a sterege un utilizator
-    public void delete_user(User user){
-        user_base.remove(user);
-    }
 
     public void delete_user(User user, int nr_imp_cnp) throws Exception {
-        if(user.getNumere_importante_cnp() == nr_imp_cnp)
+        if(user.getNumere_importante_cnp() == nr_imp_cnp){
             user_base.remove(user);
+            dbcon.deleteElement(user.makeDelete());
+        }
         else
             throw new Exception("CNP incorect!");
     }
 
-    // Functie care salveaza din nou
     public void renew_users() {
-
-        FileWriter user_saver,user_data_saver;
-        try {
-            user_saver = new FileWriter(data_base);
-
-            for (User i : user_base) {
-                user_saver.append(i.save()).append('\n');
-                user_data_saver = new FileWriter( "DataBase/UserInfo/" + i.getEmail() + i.getNumere_importante_cnp()+".txt");
-                for (Card j : i.getCarduri()){
-                    for(Cont t : j.getConturi()){
-                        user_data_saver.append(t.getNume()).append(",").append(t.getSuma_disponibila().toString()).append(",");
-                        switch (t.getTip()){
-                            case "DEBIT":
-                                user_data_saver.append(String.valueOf(((ContDebit) t).golDe()));
-                                break;
-                            case "CREDIT":
-                                user_data_saver.append(((ContCredit) t).getDatorie().toString());
-                                break;
-                        }
-                        user_data_saver.append(",").append(t.getTip()).append(",");
+        for (User u : user_base){
+            if (u.isHasLoggedIn()){
+                System.out.println(u);
+                for (Card c : u.getCarduri()){
+                    for (Cont cont : c.getConturi()){
+                        dbcon.deleteElement(cont.makeDelete());
                     }
-                    user_data_saver.append("NEXTCARD,");
+                    dbcon.deleteElement(c.makeDelete());
                 }
-
-                user_data_saver.close();
+                dbcon.deleteElement(u.makeDelete());
+                dbcon.refreshCon();
+                dbcon.insertElement(u.makeInsert());
+                for (Card c : u.getCarduri()){
+                    dbcon.insertElement(c.makeInsert());
+                    for (Cont cont : c.getConturi()){
+                        dbcon.insertElement(cont.makeInsert());
+                    }
+                }
             }
-
-            user_saver.close();
-
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
@@ -244,14 +216,7 @@ public class LocaleInteraction {
         return null;
     }
 
-    public Cont get_cont(String nume_cont, User user){
-        return user.getCont(nume_cont);
-    }
-
-    // Simulare de conexiune
     public static LocaleInteraction connect() throws FileNotFoundException {
-
-
         if (con == null) {
 
             // Creez obiectul care se ocupa de interactiunea cu fisiere locale
@@ -263,7 +228,7 @@ public class LocaleInteraction {
             if (doStartUp) dbcon.startup();
 
             // Pronesc functia de incarcare a datelor
-            data_base = load();
+            load();
         }
 
         return con;

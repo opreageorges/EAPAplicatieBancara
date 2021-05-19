@@ -5,7 +5,6 @@ import java.math.BigDecimal;
 public abstract class Cont implements Transfer{
     protected String nume;
     protected final String iban;
-    protected final String bic = "ROBCA420";
     protected BigDecimal suma_disponibila;
     protected Card proprietar;
 
@@ -39,6 +38,10 @@ public abstract class Cont implements Transfer{
     }
 
     public abstract String makeInsert();
+
+    public String makeDelete(){
+        return "cont where iban = '" + this.iban + "';";
+    }
 
     public void addMoney(float suma){
         BigDecimal suma_big = new BigDecimal(suma);

@@ -7,19 +7,19 @@ public class ContCredit extends Cont {
     private final BigDecimal limit;
     private BigDecimal datorie;
 
-    public ContCredit(String nume,String iban, BigDecimal suma_disponibila, Card proprietar) {
-        super(nume, iban, suma_disponibila, proprietar);
-        limit = new BigDecimal(5000);
-        datorie = BigDecimal.valueOf(0);
-    }
-
-    public ContCredit(String nume, String iban, Card proprietar) {
+     ContCredit(String nume, String iban, Card proprietar) {
         super(nume, iban, proprietar);
         limit = new BigDecimal(5000);
         datorie = BigDecimal.valueOf(0);
     }
 
-    public ContCredit(String nume,String iban, BigDecimal suma_disponibila, float datorie ,Card proprietar) {
+    ContCredit(String nume, String iban, BigDecimal suma_disponibila, Card proprietar, BigDecimal datorie) {
+        super(nume, iban, suma_disponibila, proprietar);
+        limit = new BigDecimal(5000);
+        this.datorie = datorie;
+    }
+
+    public ContCredit(String nume, String iban, BigDecimal suma_disponibila, float datorie , Card proprietar) {
         super(nume, iban, suma_disponibila, proprietar);
         limit = new BigDecimal(5000);
         this.datorie = BigDecimal.valueOf(datorie);

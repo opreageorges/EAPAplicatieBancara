@@ -1,11 +1,12 @@
 # EAPAplicatieBancara
 Proiectul la elemente avansate de programare
 
+In LocaleInteraction trebuie sa modifici niste campuri pentru a se putea conecta la baza de date care trebuie
+-
+
 Clase:
 
 GUI - Clasa care se ocupa de partea grafica
-
-GUI_text - Clasa legacy
 
 User - Clasa care stocheaza informatii despre utilizatori
 

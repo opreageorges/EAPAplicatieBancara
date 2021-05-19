@@ -13,7 +13,16 @@ public class User implements Comparable<User> {
     private final Random generator;
     private final int numere_importante_cnp; // primul numar si ultimele 6 numere, restul ar fi irelevante pentru ca sunt data nasterii
     private String parola;
-    private final ArrayList<Card> carduri;
+    private ArrayList<Card> carduri;
+    private boolean hasLoggedIn = false;
+
+    public void setHasLoggedIn() {
+        this.hasLoggedIn = true;
+    }
+
+    public boolean isHasLoggedIn() {
+        return hasLoggedIn;
+    }
 
     public String getEmail() {
         return email;
@@ -39,8 +48,13 @@ public class User implements Comparable<User> {
         this.parola = parola;
     }
 
+    public void setCarduri(ArrayList<Card> carduri) {
+        this.carduri = carduri;
+    }
+
     public User(String prenume, String nume, String email, LocalDate data_nasterii, int numere_importante_cnp, String parola) {
-        long seedul = (long)numere_importante_cnp*1000 + data_nasterii.getDayOfYear();
+        Random generator1 = new Random();
+        long seedul = generator1.nextLong() + data_nasterii.getDayOfYear();
         this.prenume = prenume;
         this.nume = nume;
         this.email = email;
@@ -48,17 +62,17 @@ public class User implements Comparable<User> {
         this.numere_importante_cnp = numere_importante_cnp;
         this.parola = parola;
         carduri = new ArrayList<>();
-        generator = new Random(seedul);
-    }
-
-
-    public String save(){
-        return prenume + "," + nume + "," + email + "," + data_nasterii.getYear() + "," + data_nasterii.getMonthValue() + "," + data_nasterii.getDayOfMonth() + "," + numere_importante_cnp + "," + parola + "";
+        generator1 = new Random(seedul);
+        generator = generator1;
     }
 
     public String makeInsert(){
 
         return "`user` VALUES('" + this.prenume + "', '" + this.nume + "', '" + this.email + "', date(\"" + this.data_nasterii + "\"), " + this.numere_importante_cnp+ ", '" + this.parola+ "');" ;
+    }
+
+    public String makeDelete(){
+        return "user where numerecnp = " + this.numere_importante_cnp + ";";
     }
 
     public void adaugaCard(Card card){
@@ -95,19 +109,6 @@ public class User implements Comparable<User> {
             }
         }
         return null;
-    }
-
-    //Pentru gui_text
-    public String infoCarduri(long number){
-        StringBuilder s = new StringBuilder();
-        if (number == 0L) {
-            for (Card i : carduri) s.append(i).append("\n");
-        }
-        else{
-            for (Card i : carduri) if (i.getNumber() == number) s.append(i).append("\n");
-        }
-        return s.toString();
-
     }
 
     public int getRandomIntFromUser(int bound) {
