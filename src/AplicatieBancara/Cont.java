@@ -10,18 +10,6 @@ public abstract class Cont implements Transfer{
     protected Card proprietar;
 
 
-    public String getNume() {
-        return nume;
-    }
-
-    public String getIban() {
-        return iban;
-    }
-
-    public BigDecimal getSuma_disponibila() {
-        return suma_disponibila;
-    }
-
     // Creaza un cont cu o depunere initiala
     public Cont(String nume, String iban,  BigDecimal suma_disponibila, Card proprietar) {
         this.nume = nume;
@@ -38,12 +26,26 @@ public abstract class Cont implements Transfer{
         this.proprietar = proprietar;
     }
 
+    public String getNume() {
+        return nume;
+    }
+
+    public String getIban() {
+        return iban;
+    }
+
+    public BigDecimal getSuma_disponibila() {
+        return suma_disponibila;
+    }
+
+    public abstract String makeInsert();
+
     public void addMoney(float suma){
         BigDecimal suma_big = new BigDecimal(suma);
         suma_disponibila = suma_disponibila.add(suma_big);
     }
 
-    abstract public String getTip();
+    public abstract String getTip();
 
     @Override
     public String toString() {

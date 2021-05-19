@@ -22,3 +22,4 @@ Pre8,Num8,mail8@mail.ro,1999,2,5,3340108,parola1!?
 Pre9,Num9,mail9@mail.ro,1997,6,9,3340109,12345678test
 gigelus,gigelus,mail@mail.com,2000,12,5,408690,p9ar9ol9a
 George,Oprea,opreageorge00@gmail.com,2000,8,5,407579,12345
+serban,robert,rober@mail.com,2012,12,12,5121234,12345678

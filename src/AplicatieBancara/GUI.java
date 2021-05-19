@@ -858,9 +858,11 @@ public class GUI implements ActionListener {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
+
+        // Genereaza baza de date
+        // dbcon.startup();
         gui.mainMenu();
         con.renew_users();
 
     }
-
 }

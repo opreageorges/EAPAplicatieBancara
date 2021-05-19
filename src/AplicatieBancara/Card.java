@@ -67,6 +67,9 @@ public class Card {
         conturi.removeIf(i -> i.nume.equals(nume));
     }
 
+    public String makeInsert(){
+        return "`card` VALUES(" + this.number + ", " + this.cvv_cvc + ", " + this.proprietar.getNumere_importante_cnp() + ");";
+    }
 
     @Override
     public boolean equals(Object o) {

@@ -19,6 +19,15 @@ public class LocaleInteraction {
     private static File data_base;
     private static TreeSet<User> user_base;
     private static ArrayList<String> firme_partenere;
+    private static DataBaseInteraction dbcon;
+
+    ///////////////
+    private static final String url = "jdbc:mysql://localhost:3306/aplicatiebancara";
+    private static final String user = "root";
+    private static final String password = "12345678mysql";
+    // Seteaza ca true ca sa creeze baza de date
+    private static final boolean doStartUp = false;
+    //////////////
 
     private LocaleInteraction() {
         user_base = new TreeSet<>();
@@ -242,12 +251,18 @@ public class LocaleInteraction {
     // Simulare de conexiune
     public static LocaleInteraction connect() throws FileNotFoundException {
 
+
         if (con == null) {
 
-            //Creez obiectul care imita o conexiune la un server
+            // Creez obiectul care se ocupa de interactiunea cu fisiere locale
             con = new LocaleInteraction();
 
-            //Pronesc functia de incarcare a datelor
+            // Creez obiectul care se ocupa de interactiunea cu baza de date
+            dbcon = DataBaseInteraction.getInstance(url, user, password);
+
+            if (doStartUp) dbcon.startup();
+
+            // Pronesc functia de incarcare a datelor
             data_base = load();
         }
 

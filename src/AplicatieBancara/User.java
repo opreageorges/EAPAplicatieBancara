@@ -56,6 +56,11 @@ public class User implements Comparable<User> {
         return prenume + "," + nume + "," + email + "," + data_nasterii.getYear() + "," + data_nasterii.getMonthValue() + "," + data_nasterii.getDayOfMonth() + "," + numere_importante_cnp + "," + parola + "";
     }
 
+    public String makeInsert(){
+
+        return "`user` VALUES('" + this.prenume + "', '" + this.nume + "', '" + this.email + "', date(\"" + this.data_nasterii + "\"), " + this.numere_importante_cnp+ ", '" + this.parola+ "');" ;
+    }
+
     public void adaugaCard(Card card){
         carduri.add(card);
     }

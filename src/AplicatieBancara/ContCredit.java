@@ -19,8 +19,19 @@ public class ContCredit extends Cont {
         datorie = BigDecimal.valueOf(0);
     }
 
+    public ContCredit(String nume,String iban, BigDecimal suma_disponibila, float datorie ,Card proprietar) {
+        super(nume, iban, suma_disponibila, proprietar);
+        limit = new BigDecimal(5000);
+        this.datorie = BigDecimal.valueOf(datorie);
+    }
+
     public BigDecimal getDatorie() {
         return datorie;
+    }
+
+    @Override
+    public String makeInsert() {
+        return "`cont` VALUES('" + this.nume + "', '" + this.iban + "', " + this.suma_disponibila.floatValue() + ", " + this.proprietar.getNumber() + ", '" + getTip() + "', " + this.datorie.floatValue() + ", null );";
     }
 
     @Override
